@@ -9,4 +9,4 @@ main_script=/srv/tempdd/egermani/hcp_pipelines/src/singularity_launcher.sh
 set -x
 
 module load spack/singularity
-singularity exec /srv/tempdd/egermani/open_pipeline_latest.sif singularity_launcher.sh
+singularity exec /srv/tempdd/egermani/open_pipeline_latest.sif $main_script
