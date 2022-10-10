@@ -32,5 +32,5 @@ f=8
 set -x
 
 module load spack/singularity
-singularity exec /srv/tempdd/egermani/open_pipeline_latest.sif source activate neuro 
+singularity exec /srv/tempdd/egermani/open_pipeline_latest.sif /opt/miniconda-latest/bin/activate neuro
 singularity exec /srv/tempdd/egermani/open_pipeline_latest.sif python3 -u $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f >> $output_file 
