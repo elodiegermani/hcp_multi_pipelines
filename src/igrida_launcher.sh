@@ -33,4 +33,4 @@ set -x
 
 module load spack/singularity
 
-singularity singularity exec open_pipeline_latest.sif python3 -u $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f >> $output_file 
+singularity exec open_pipeline_latest.sif python3 -u $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f >> $output_file 
