@@ -147,7 +147,7 @@ def get_subject_infos(event_file):
 
     return subject_info
 
-def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list,param_file, func_file):
+def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list):
     """
     Returns the first level analysis workflow.
     Parameters: 
@@ -172,11 +172,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                             ('fwhm', fwhm_list)]
 
     # Templates to select files node
-    #param_file = opj(output_dir, 'preprocess', '_subject_id_{subject_id}_task_{task}',
-    #            'rp_{subject_id}_3T_tfMRI_{task}_LR.txt')
+    param_file = opj(output_dir, 'preprocess_spm', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
+                    'rp_{subject_id}_3T_tfMRI_{task}_LR.txt')
 
-    #func_file = opj(output_dir, 'preprocess', '_subject_id_{subject_id}_task_{task}',
-    #            'swr{subject_id}_3T_tfMRI_{task}_LR.nii')
+    func_file = opj(output_dir, 'preprocess_spm', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
+                'swr{subject_id}_3T_tfMRI_{task}_LR.nii')
 
     event_file = opj(exp_dir, '{task}', '{subject_id}', 'unprocessed', '3T', 'tfMRI_{task}_LR', 'LINKED_DATA', 'EPRIME', 'EVs', '{contrast}.txt')
 
