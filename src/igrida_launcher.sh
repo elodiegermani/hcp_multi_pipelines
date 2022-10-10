@@ -24,7 +24,7 @@ s='["100206","100408","101006"]'
 o='["preprocessing"]'
 S='spm'
 t='["MOTOR"]'
-c='["lf", "rf", "rh", "lh", "t", "cue"]'
+c='["lf","rf","rh","lh","t","cue"]'
 f=8
 
 . /etc/profile.d/modules.sh
