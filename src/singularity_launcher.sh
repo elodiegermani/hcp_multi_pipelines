@@ -24,4 +24,4 @@ c='["lf","rf","rh","lh","t","cue"]'
 f=8
 
 /opt/miniconda-latest/bin/activate neuro 
-python3 -u $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f >> $output_file
+python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f
