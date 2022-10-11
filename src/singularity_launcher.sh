@@ -25,5 +25,5 @@ f=8
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
-conda activate workEnv
+conda activate neuro
 python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f
