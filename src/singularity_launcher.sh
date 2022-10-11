@@ -23,5 +23,7 @@ t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
 f=8
 
-/opt/miniconda-latest/bin/activate neuro 
+source /opt/miniconda-latest/etc/profile.d/conda.sh
+source /opt/miniconda-latest/bin/activate
+conda activate workEnv
 python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f
