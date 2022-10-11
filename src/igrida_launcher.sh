@@ -13,6 +13,7 @@ PATHLOG="/srv/tempdd/egermani/Logs/${CURRENTDATE}_OARID_${OAR_JOB_ID}/"
 echo "path log :"
 echo $PATHLOG
 mkdir $PATHLOG
+chmod 777 $PATHLOG
 
 . /etc/profile.d/modules.sh
 
