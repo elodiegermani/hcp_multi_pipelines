@@ -11,9 +11,6 @@ CURRENTDATE=`date +"%Y-%m-%d"`
 echo "currentDate :"
 echo $CURRENTDATE
 PATHLOG="/srv/tempdd/egermani/Logs/${CURRENTDATE}_OARID_${OAR_JOB_ID}/"
-echo "path log :"
-echo $PATHLOG
-mkdir $PATHLOG
 
 output_file=$PATHLOG/$OAR_JOB_ID.txt
 
