@@ -10,7 +10,7 @@ echo "Create dir for log"
 CURRENTDATE=`date +"%Y-%m-%d"`
 echo "currentDate :"
 echo $CURRENTDATE
-PATHLOG="/srv/tempdd/egermani/Logs/${CURRENTDATE}_OARID_${OAR_JOB_ID}/"
+PATHLOG="/srv/tempdd/egermani/Logs/${CURRENTDATE}_OARID_${OAR_JOB_ID}"
 
 output_file=$PATHLOG/$OAR_JOB_ID.txt
 
