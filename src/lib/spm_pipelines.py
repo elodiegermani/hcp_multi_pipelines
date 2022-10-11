@@ -1,3 +1,7 @@
+from nipype.interfaces import spm
+matlab_cmd = '/opt/spm12-r7771/run_spm12.sh /opt/matlabmcr-2010a/v713/ script'
+spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd, use_mcr=True)
+
 from nipype.interfaces.spm import (Coregister, Smooth, OneSampleTTestDesign, EstimateModel, EstimateContrast, 
                                    Level1Design, TwoSampleTTestDesign, Realign, 
                                    Normalize12, NewSegment)
