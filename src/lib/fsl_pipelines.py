@@ -122,8 +122,17 @@ def get_subject_infos(event_file):
 
 	return subject_info
 
+def get_24_param(param_file):
+    import os 
 
-def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list):
+    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
+    filePath = __file__
+
+    os.system(f'bash {os.path.dirname(filePath)+'/'}mp_diffpow24.sh {param_file} {out_file}')
+
+    return out_file
+
+def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param):
 	"""
 	Returns the first level analysis workflow.
 	Parameters: 
@@ -141,11 +150,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 		- l1_analysis : Nipype WorkFlow 
 	"""
 	# Infosource Node - To iterate on subjects
-	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm']),
+	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param']),
 					  name = 'infosource')
 
 	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', contrast_list), ('fwhm', fwhm_list)]
+	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', nb_param)]
 
 	# Templates to select files node
 	param_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
@@ -191,8 +200,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 												   ('task', 'task'), ('fwhm', 'fwhm'), 
 												   ('contrast', 'contrast')]),
 						(selectfiles, subject_infos, [('event', 'event_file')]),
-						(selectfiles, specify_model, [('param', 'realignment_parameters'),
-							('func', 'functional_runs')]),
+						(selectfiles, specify_model, [('func', 'functional_runs')]),
 						(subject_infos, specify_model, [('subject_info', 'subject_info')]),
 						(specify_model, l1_design, [('session_info', 'session_info')]),
 						(l1_design, model_generation, [('ev_files', 'ev_files'), ('fsf_files', 'fsf_file')]),
@@ -203,6 +211,17 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 						(model_generation, datasink, [('design_file', 'l1_analysis_fsl.@design_file'),
 													 ('design_image', 'l1_analysis_fsl.@design_img')]),
 						])
+
+	if nb_param == 6:
+        l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
+    elif nb_param == 24:
+    	param_extent = Node(Function(input_names=['param_file'],
+                                   output_names=['out_file'],
+                                   function=get_24_param),
+                          name='param_extent')
+
+        l1_analysis.connect([(selectfiles, param_extent, [('param', 'param_file')]), 
+            (param_extent, specify_model, [('out_file', 'realignment_parameters')])])
 
 	return l1_analysis
 

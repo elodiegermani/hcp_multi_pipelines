@@ -22,10 +22,11 @@ if __name__ == "__main__":
     task_list = []
     contrast_list = []
     fwhm_list=[]
+    nb_param=[]
 
     try:
-        OPTIONS, REMAINDER = getopt.getopt(sys.argv[1:], 'e:r:s:o:S:t:c:f:', ['exp_dir=', 'result_dir=', 'subjects=', 'operation=',
-            'software=', 'task=', 'contrast=', 'fwhm='])
+        OPTIONS, REMAINDER = getopt.getopt(sys.argv[1:], 'e:r:s:o:S:t:c:f:p:', ['exp_dir=', 'result_dir=', 'subjects=', 'operation=',
+            'software=', 'task=', 'contrast=', 'fwhm=', 'param='])
 
     except getopt.GetoptError as err:
         print(err)
@@ -49,6 +50,8 @@ if __name__ == "__main__":
             contrast_list = json.loads(arg)
         elif opt in ('-f', '--fwhm'):
             fwhm_list.append(int(arg))
+        elif opt in ('-p', '--param'):
+            nb_param.append(int(arg))
 
     print('OPTIONS   :', OPTIONS)
 
@@ -65,18 +68,18 @@ if __name__ == "__main__":
     if 'preprocessing' in operation:
         preprocess = pipeline.get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list, task_list, 
                                                 fwhm_list)
-        preprocess.run('MultiProc', plugin_args={'n_procs': 8})
+        preprocess.run('MultiProc', plugin_args={'n_procs': 16})
 
     if 'l1' in operation:
         l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
-                                                contrast_list, fwhm_list)
-        l1_analysis.run('MultiProc', plugin_args={'n_procs': 8})
+                                                contrast_list, fwhm_list, nb_param)
+        l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
 
         if software == 'fsl':
             registration = pipeline.get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
                 contrast_list, fwhm_list)
 
-            registration.run('MultiProc', plugin_args={'n_procs': 8})
+            registration.run('MultiProc', plugin_args={'n_procs': 16})
 
 
 

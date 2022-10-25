@@ -151,7 +151,17 @@ def get_subject_infos(event_file):
 
     return subject_info
 
-def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list):
+def get_24_param(param_file):
+    import os 
+
+    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
+    filePath = __file__
+
+    os.system(f'bash {os.path.dirname(filePath)+'/'}mp_diffpow24.sh {param_file} {out_file}')
+
+    return out_file
+
+def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param):
     """
     Returns the first level analysis workflow.
     Parameters: 
@@ -169,11 +179,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
         - l1_analysis : Nipype WorkFlow 
     """
     # Infosource Node - To iterate on subjects
-    infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm']),
+    infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param']),
                       name = 'infosource')
 
     infosource.iterables = [('subject_id', subject_list), ('task', task_list), ('contrast', contrast_list), 
-                            ('fwhm', fwhm_list)]
+                            ('fwhm', fwhm_list), ('nb_param', nb_param)]
 
     # Templates to select files node
     param_file = opj(output_dir, 'preprocess_spm', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
@@ -221,8 +231,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                                    ('contrast', 'contrast'), ('fwhm', 'fwhm')]),
                         (subject_infos, specify_model, [('subject_info', 'subject_info')]),
                         (selectfiles, subject_infos, [('event', 'event_file')]),
-                        (selectfiles, specify_model, [('func', 'functional_runs'),
-                                                      ('param', 'realignment_parameters')]),
+                        (selectfiles, specify_model, [('func', 'functional_runs')]),
                         (specify_model, l1_design, [('session_info', 'session_info')]),
                         (l1_design, l1_estimate, [('spm_mat_file', 'spm_mat_file')]),
                         (l1_estimate, contrast_estimate, [('spm_mat_file', 'spm_mat_file'),
@@ -232,7 +241,21 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                                                 ('spmT_images', 'l1_analysis_spm.@spmT_images'),
                                                                 ('spm_mat_file', 'l1_analysis_spm.@spm_mat_file')]),
                         ])
-    
+
+    if nb_param == 6:
+
+        l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
+
+    elif nb_param == 24:
+
+        param_extent = Node(Function(input_names=['param_file'],
+                                   output_names=['out_file'],
+                                   function=get_24_param),
+                          name='param_extent')
+
+        l1_analysis.connect([(selectfiles, param_extent, [('param', 'param_file')]), 
+            (param_extent, specify_model, [('out_file', 'realignment_parameters')])])
+
     return l1_analysis
 
 def get_contrasts_maps(fsl_files, fsl_ids, spm_files, spm_ids):
