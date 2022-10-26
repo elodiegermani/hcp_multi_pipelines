@@ -242,11 +242,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                                                 ('spm_mat_file', 'l1_analysis_spm.@spm_mat_file')]),
                         ])
 
-    if int(nb_param) == 6:
+    if nb_param == [6]:
 
         l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
 
-    elif int(nb_param) == 24:
+    elif nb_param == [24]:
 
         param_extent = Node(Function(input_names=['param_file'],
                                    output_names=['out_file'],
