@@ -155,9 +155,8 @@ def get_24_param(param_file):
     import os 
 
     out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
-    filePath = __file__
 
-    os.system(f'bash {os.path.dirname(filePath)}/mp_diffpow24.sh {param_file} {out_file}')
+    os.system(f'bash {os.path.dirname(__file__)}/mp_diffpow24.sh {param_file} {out_file}')
 
     return out_file
 
