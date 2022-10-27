@@ -22,7 +22,7 @@ o='["l1"]'
 S='spm'
 t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
-f=8
+f=5
 p=24
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
