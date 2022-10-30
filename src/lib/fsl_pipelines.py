@@ -123,14 +123,14 @@ def get_subject_infos(event_file):
 	return subject_info
 
 def get_24_param(param_file):
-    import os 
+	import os 
 
-    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
-    filePath = __file__
+	out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
+	filePath = __file__
 
-    os.system(f'bash {os.path.dirname(filePath)}/mp_diffpow24.sh {param_file} {out_file}')
+	os.system(f'bash {os.path.dirname(filePath)}/mp_diffpow24.sh {param_file} {out_file}')
 
-    return out_file
+	return out_file
 
 def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param):
 	"""
@@ -158,10 +158,10 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 	# Templates to select files node
 	param_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
-                 '_realign0', '{subject_id}_3T_tfMRI_{task}_LR_dtype_mcf.nii.gz.par')
+	 '_realign0', '{subject_id}_3T_tfMRI_{task}_LR_dtype_mcf.nii.gz.par')
 
 	func_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', '_addmean0',
-                '{subject_id}_3T_tfMRI_{task}_LR_dtype_mcf_mask_smooth_mask_gms_tempfilt_maths.nii.gz')
+	'{subject_id}_3T_tfMRI_{task}_LR_dtype_mcf_mask_smooth_mask_gms_tempfilt_maths.nii.gz')
 
 	event_file = opj(exp_dir, '{task}', '{subject_id}', 'unprocessed', '3T', 'tfMRI_{task}_LR', 'LINKED_DATA', 'EPRIME', 'EVs', '{contrast}.txt')
 
@@ -213,15 +213,15 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 						])
 
 	if nb_param == 6:
-        l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
-    elif nb_param == 24:
-    	param_extent = Node(Function(input_names=['param_file'],
-                                   output_names=['out_file'],
-                                   function=get_24_param),
-                          name='param_extent')
+		l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
+	elif nb_param == 24:
+		param_extent = Node(Function(input_names=['param_file'],
+	   output_names=['out_file'],
+	   function=get_24_param),
+	  name='param_extent')
 
-        l1_analysis.connect([(selectfiles, param_extent, [('param', 'param_file')]), 
-            (param_extent, specify_model, [('out_file', 'realignment_parameters')])])
+		l1_analysis.connect([(selectfiles, param_extent, [('param', 'param_file')]), 
+		(param_extent, specify_model, [('out_file', 'realignment_parameters')])])
 
 	return l1_analysis
 
@@ -250,11 +250,11 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 	('contrast', contrast_list), ('fwhm', fwhm_list)]
 
 	func2anat_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
-                        	'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
+		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
 	anat2target_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
-	                        '{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
+		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
 	stat_file = opj(output_dir, 'l1_analysis_fsl', '_contrast_{contrast}_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
-	                'results', 'cope1.nii.gz')
+		'results', 'cope1.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
 					'func2anat_transform': func2anat_transform_file, 
