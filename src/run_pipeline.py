@@ -41,7 +41,7 @@ if __name__ == "__main__":
         elif opt in ('-s', '--subjects'):
             subject_list = json.loads(arg)
         elif opt in ('-o', '--operation'): 
-            operation = json.loads(arg) # preprocess, l1
+            operation = json.loads(arg) # preprocess, l1, registration
         elif opt in ('-S', '--software'):
             software = str(arg)
         elif opt in ('-t', '--task'):
