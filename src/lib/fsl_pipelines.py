@@ -225,7 +225,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 	return l1_analysis
 
-def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list):
+def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, param_list):
 	"""
 	Returns the first level analysis workflow.
 	Parameters: 
@@ -243,17 +243,17 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		- l1_analysis : Nipype WorkFlow 
 	"""
 	# Infosource Node - To iterate on subjects
-	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm']),
+	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param']),
 					  name = 'infosource')
 
 	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', contrast_list), ('fwhm', fwhm_list)]
+	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', param_list)]
 
 	func2anat_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
 	anat2target_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
-	stat_file = opj(output_dir, 'l1_analysis_fsl', '_contrast_{contrast}_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
+	stat_file = opj(output_dir, 'l1_analysis_fsl', '_contrast_{contrast}_fwhm_{fwhm}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
 		'results', 'cope1.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
@@ -275,7 +275,7 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 
 	registration.connect([(infosource, selectfiles, [('subject_id', 'subject_id'),
 												   ('task', 'task'), ('fwhm', 'fwhm'), 
-												   ('contrast', 'contrast')]),
+												   ('contrast', 'contrast'), ('nb_param', 'nb_param')]),
 						(selectfiles, warpall, [('func2anat_transform', 'premat'), 
 							('anat2target_transform', 'field_file'), 
 							('stat', 'in_file')]), 
