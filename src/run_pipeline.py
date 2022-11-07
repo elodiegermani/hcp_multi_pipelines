@@ -75,11 +75,11 @@ if __name__ == "__main__":
                                                 contrast_list, fwhm_list, nb_param)
         l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
 
-        if software == 'fsl':
-            registration = pipeline.get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
-                contrast_list, fwhm_list)
+    if 'registration' in operation:
+        registration = pipeline.get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
+            contrast_list, fwhm_list)
 
-            registration.run('MultiProc', plugin_args={'n_procs': 16})
+        registration.run('MultiProc', plugin_args={'n_procs': 16})
 
 
 
