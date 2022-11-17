@@ -23,13 +23,16 @@ o='["registration"]'
 S='fsl'
 t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
-f=5
+hrf=no_derivatives
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
 conda activate neuro
 
-for p in 24
+for p in 0 6 24
 do
-	python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f -p $p
+	for f in 5 8
+	do 
+		python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f -p $p
+done
 done

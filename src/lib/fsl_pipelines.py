@@ -132,7 +132,7 @@ def get_24_param(param_file):
 
 	return out_file
 
-def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param):
+def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param, hrf):
 	"""
 	Returns the first level analysis workflow.
 	Parameters: 
@@ -150,11 +150,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 		- l1_analysis : Nipype WorkFlow 
 	"""
 	# Infosource Node - To iterate on subjects
-	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param']),
+	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param', 'hrf']),
 					  name = 'infosource')
 
 	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', nb_param)]
+	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', nb_param), ('hrf', hrf)]
 
 	# Templates to select files node
 	param_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
@@ -183,7 +183,12 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 									 input_units = 'secs',
 									 time_repetition = 0.72), name = 'specify_model')
 
-	l1_design = Node(Level1Design(bases = {'dgamma':{'derivs' : True}},
+	if hrf == ['derivatives']:
+        hrf_values = True
+    elif hrf == ['no_derivatives']:
+        hrf_values = False
+
+	l1_design = Node(Level1Design(bases = {'dgamma':{'derivs' : hrf_values}},
 								 interscan_interval = 0.72, 
 								 model_serial_correlations = True), name = 'l1_design')
 

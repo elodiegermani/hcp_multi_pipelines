@@ -160,7 +160,7 @@ def get_24_param(param_file):
 
     return out_file
 
-def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param):
+def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param, hrf):
     """
     Returns the first level analysis workflow.
     Parameters: 
@@ -178,11 +178,11 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
         - l1_analysis : Nipype WorkFlow 
     """
     # Infosource Node - To iterate on subjects
-    infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param']),
+    infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param', 'hrf']),
                       name = 'infosource')
 
     infosource.iterables = [('subject_id', subject_list), ('task', task_list), ('contrast', contrast_list), 
-                            ('fwhm', fwhm_list), ('nb_param', nb_param)]
+                            ('fwhm', fwhm_list), ('nb_param', nb_param), ('hrf', hrf)]
 
     # Templates to select files node
     param_file = opj(output_dir, 'preprocess_spm', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}',
@@ -212,7 +212,12 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                         time_repetition = 0.72, high_pass_filter_cutoff = 128), name='specify_model')
 
     # Level1Design - Generates an SPM design matrix
-    l1_design = Node(Level1Design(bases = {'hrf': {'derivs': [1, 1]}}, timing_units = 'secs', 
+    if hrf == ['derivatives']:
+        hrf_values = [1, 1]
+    elif hrf == ['no_derivatives']:
+        hrf_values = [0, 0]
+
+    l1_design = Node(Level1Design(bases = {'hrf': {'derivs': hrf_values}}, timing_units = 'secs', 
                                     interscan_interval = 0.72), name='l1_design')
 
     # EstimateModel - estimate the parameters of the model

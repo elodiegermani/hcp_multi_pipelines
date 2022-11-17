@@ -23,10 +23,11 @@ if __name__ == "__main__":
     contrast_list = []
     fwhm_list=[]
     nb_param=[]
+    hrf=[]
 
     try:
-        OPTIONS, REMAINDER = getopt.getopt(sys.argv[1:], 'e:r:s:o:S:t:c:f:p:', ['exp_dir=', 'result_dir=', 'subjects=', 'operation=',
-            'software=', 'task=', 'contrast=', 'fwhm=', 'param='])
+        OPTIONS, REMAINDER = getopt.getopt(sys.argv[1:], 'e:r:s:o:S:t:c:f:p:h:', ['exp_dir=', 'result_dir=', 'subjects=', 'operation=',
+            'software=', 'task=', 'contrast=', 'fwhm=', 'param=', 'hrf='])
 
     except getopt.GetoptError as err:
         print(err)
@@ -52,6 +53,8 @@ if __name__ == "__main__":
             fwhm_list.append(int(arg))
         elif opt in ('-p', '--param'):
             nb_param.append(int(arg))
+        elif opt in ('-h', '--hrf'):
+            hrf.append(str(arg))
 
     print('OPTIONS   :', OPTIONS)
 
@@ -72,7 +75,7 @@ if __name__ == "__main__":
 
     if 'l1' in operation:
         l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
-                                                contrast_list, fwhm_list, nb_param)
+                                                contrast_list, fwhm_list, nb_param, hrf)
         l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
 
     if 'registration' in operation:
