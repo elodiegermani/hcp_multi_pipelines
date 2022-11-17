@@ -23,7 +23,7 @@ o='["l1"]'
 S='fsl'
 t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
-hrf=no_derivatives
+hrf='no_derivatives'
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
@@ -33,6 +33,6 @@ for p in 0 6 24
 do
 	for f in 5 8
 	do 
-		python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f -p $p
+		python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f -p $p -h $hrf
 done
 done
