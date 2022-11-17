@@ -214,7 +214,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
     # Level1Design - Generates an SPM design matrix
     if hrf == ['derivatives']:
         hrf_values = [1, 1]
-    elif hrf == ['no_derivatives']:
+    else:
         hrf_values = [0, 0]
 
     l1_design = Node(Level1Design(bases = {'hrf': {'derivs': hrf_values}}, timing_units = 'secs', 

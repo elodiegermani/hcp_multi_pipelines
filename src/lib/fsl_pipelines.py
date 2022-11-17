@@ -185,7 +185,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 	if hrf == ['derivatives']:
 		hrf_values = True
-	elif hrf == ['no_derivatives']:
+	else:
 		hrf_values = False
 
 	l1_design = Node(Level1Design(bases = {'dgamma':{'derivs' : hrf_values}},
