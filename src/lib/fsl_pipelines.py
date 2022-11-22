@@ -1,3 +1,6 @@
+#python3
+#This script contains function to create NiPype workflow for analysing HCP dataset with FSL.
+
 from nipype.interfaces.fsl import (BET, FAST, MCFLIRT, FLIRT, FNIRT, ApplyWarp, SUSAN, 
 								   Info, ImageMaths, ImageStats, Threshold, Level1Design, FEATModel, 
 								   L2Model, Merge, FLAMEO, ContrastMgr,Cluster,  FILMGLS, Randomise, 
@@ -16,14 +19,15 @@ import os
 
 def get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list, task_list, fwhm_list):
 	"""
-	Returns the preprocessing workflow.
+	Returns the FSL preprocessing workflow.
 	Parameters: 
 		- exp_dir: str, directory where raw data are stored
 		- result_dir: str, directory where results will be stored
 		- working_dir: str, name of the sub-directory for intermediate results
 		- output_dir: str, name of the sub-directory for final results
 		- subject_list: list of str, list of subject for which you want to do the preprocessing
-		- task_list: list of str, list of contrast for which you want to do the preprocessing
+		- task_list: list of str, list of task for which you want to do the preprocessing
+		- fwhm_list: list of int, list of fhwm kernel for smoothing 
 		
 	Returns: 
 		- preprocessing: Nipype WorkFlow 
@@ -94,7 +98,8 @@ def get_subject_infos(event_file, contrasts):
 	'''
 	Create Bunchs for specifyModel.
 	Parameters :
-	- event_file: str, event file for the subject
+	- event_file: list of str, event files for the subject
+	- contrasts: list of contrast to analyze
 	
 	Returns :
 	- subject_info : Bunch for 1st level analysis.
@@ -102,16 +107,16 @@ def get_subject_infos(event_file, contrasts):
 	from nipype.interfaces.base import Bunch
 	import numpy as np
 	
-	cond_names = sorted(contrasts)
+	# Global lists 
+	cond_names = sorted(contrasts) 
 	onsets = []
 	durations = []
 
+	# Selection of only event files corresponding to selected contrasts
 	event_files = [f for f in event_file if f.split('/')[-1].split('.')[0] in contrasts]
-	print(event_files)
-	print(contrasts)
 
 	for i, c in enumerate(sorted(contrasts)):
-		onset = []
+		onset = [] # For each contrast, save the onset and duration
 		duration = []
 		file = sorted(event_files)[i]
 		with open(file, 'rt') as f:
@@ -121,10 +126,10 @@ def get_subject_infos(event_file, contrasts):
 				onset.append(float(info[0])) 
 				duration.append(float(info[1]))
 		onsets.append(onset)
-		durations.append(duration)
+		durations.append(duration) # Add these onset and duration to global list 
 					
 	subject_info = Bunch(conditions=cond_names,
-							 onsets=onsets,
+							 onsets=onsets, # Onsets and Durations contain list of lists with onsets and durations for every contrast
 							 durations=durations,
 							 amplitudes=None,
 							 regressor_names=None,
@@ -133,6 +138,7 @@ def get_subject_infos(event_file, contrasts):
 	return subject_info
 
 def get_24_param(param_file):
+	# Function to apply bash script on parameter file to obtain 24 MC parameters from the 6 firsts
 	import os 
 
 	out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
@@ -144,7 +150,7 @@ def get_24_param(param_file):
 
 def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param, hrf):
 	"""
-	Returns the first level analysis workflow.
+	Returns the FSL first level analysis workflow.
 	Parameters: 
 		- exp_dir: str, directory where raw data are stored
 		- result_dir: str, directory where results will be stored
@@ -153,8 +159,9 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 		- subject_list: list of str, list of subject for which you want to do the analysis
 		- task_list: list of str, list of task for which you want to do the analysis
 		- contrast_list: list of str, list of contrast for which you want to do the analysis
-		- param_file: str, template for selectfiles of parameters files
-		- func_file: str, template for selectfiles of functional preprocessed files
+		- fwhm_list: list of int, list of fwhm kernel for smoothing 
+		- nb_param: list of int, list of number of parameters for model -> one of 0, 6 or 24
+		- hrf: list of string, derivatives for hrf function (derivatives or no_derivatives)
 
 	Returns: 
 		- l1_analysis : Nipype WorkFlow 
@@ -242,7 +249,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, param_list, hrf):
 	"""
-	Returns the first level analysis workflow.
+	Returns the FSL registration workflow to apply AFTER L1 analysis.
 	Parameters: 
 		- exp_dir: str, directory where raw data are stored
 		- result_dir: str, directory where results will be stored
@@ -251,11 +258,12 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		- subject_list: list of str, list of subject for which you want to do the analysis
 		- task_list: list of str, list of task for which you want to do the analysis
 		- contrast_list: list of str, list of contrast for which you want to do the analysis
-		- param_file: str, template for selectfiles of parameters files
-		- func_file: str, template for selectfiles of functional preprocessed files
+		- fwhm_list: list of int, list of fwhm kernel for smoothing 
+		- param_list: list of int, list of number of parameters for model -> one of 0, 6 or 24
+		- hrf: list of string, derivatives for hrf function (derivatives or no_derivatives)
 
 	Returns: 
-		- l1_analysis : Nipype WorkFlow 
+		- registration : Nipype WorkFlow 
 	"""
 	# Infosource Node - To iterate on subjects
 	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param', 'hrf']),
