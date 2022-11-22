@@ -90,7 +90,7 @@ def get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list
 
 
 
-def get_subject_infos(event_file):
+def get_subject_infos(event_file, contrasts):
 	'''
 	Create Bunchs for specifyModel.
 	Parameters :
@@ -102,20 +102,26 @@ def get_subject_infos(event_file):
 	from nipype.interfaces.base import Bunch
 	import numpy as np
 	
-	cond_names = ['event']
-	onset = []
-	duration = []
+	cond_names = sorted(contrasts)
+	onsets = []
+	durations = []
 
-	with open(event_file, 'rt') as f:
-		for line in f:
-			info = line.strip().split()
+	for i, c in enumerate(sorted(contrasts)):
+		onset = []
+		duration = []
+		file = sorted(event_file)[i]
+		with open(file, 'rt') as f:
+			for line in f:
+				info = line.strip().split()
 
-			onset.append(float(info[0])) 
-			duration.append(float(info[1]))
+				onset.append(float(info[0])) 
+				duration.append(float(info[1]))
+		onsets.append(onset)
+		durations.append(duration)
 					
 	subject_info = Bunch(conditions=cond_names,
-							 onsets=[onset],
-							 durations=[duration],
+							 onsets=onsets,
+							 durations=durations,
 							 amplitudes=None,
 							 regressor_names=None,
 							 regressors=None)
@@ -150,11 +156,10 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 		- l1_analysis : Nipype WorkFlow 
 	"""
 	# Infosource Node - To iterate on subjects
-	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param', 'hrf']),
+	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'fwhm', 'nb_param', 'hrf']),
 					  name = 'infosource')
 
-	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', nb_param), ('hrf', hrf)]
+	infosource.iterables = [('subject_id', subject_list), ('task', task_list), ('fwhm', fwhm_list), ('nb_param', nb_param), ('hrf', hrf)]
 
 	# Templates to select files node
 	param_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
@@ -163,7 +168,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 	func_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', '_addmean0',
 	'{subject_id}_3T_tfMRI_{task}_LR_dtype_mcf_mask_smooth_mask_gms_tempfilt_maths.nii.gz')
 
-	event_file = opj(exp_dir, '{task}', '{subject_id}', 'unprocessed', '3T', 'tfMRI_{task}_LR', 'LINKED_DATA', 'EPRIME', 'EVs', '{contrast}.txt')
+	event_file = opj(exp_dir, '{task}', '{subject_id}', 'unprocessed', '3T', 'tfMRI_{task}_LR', 'LINKED_DATA', 'EPRIME', 'EVs', '*.txt')
 
 	template = {'param' : param_file, 'func' : func_file, 'event' : event_file}
 
@@ -174,10 +179,12 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 	datasink = Node(DataSink(base_directory=result_dir, container=output_dir), name='datasink')
 
 	# Get Subject Info - get subject specific condition information
-	subject_infos = Node(Function(input_names=['event_file'],
+	subject_infos = Node(Function(input_names=['event_file', 'contrasts'],
 								   output_names=['subject_info'],
 								   function=get_subject_infos),
 						  name='subject_infos')
+
+	subject_infos.inputs.contrasts = contrast_list
 
 	specify_model = Node(SpecifyModel(high_pass_filter_cutoff = 60,
 									 input_units = 'secs',
@@ -192,7 +199,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 								 interscan_interval = 0.72, 
 								 model_serial_correlations = True), name = 'l1_design')
 
-	l1_design.inputs.contrasts = [('event vs baseline', 'T', ['event'], [1])]
+	l1_design.inputs.contrasts = [(f'{c} vs baseline', 'T', [c], [1]) for c in sorted(contrast_list)]
 
 	model_generation = Node(FEATModel(), name = 'model_generation')
 
@@ -202,8 +209,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 	l1_analysis = Workflow(base_dir = opj(result_dir, working_dir), name = "l1_analysis_fsl")
 
 	l1_analysis.connect([(infosource, selectfiles, [('subject_id', 'subject_id'),
-												   ('task', 'task'), ('fwhm', 'fwhm'), 
-												   ('contrast', 'contrast')]),
+												   ('task', 'task'), ('fwhm', 'fwhm')]),
 						(selectfiles, subject_infos, [('event', 'event_file')]),
 						(selectfiles, specify_model, [('func', 'functional_runs')]),
 						(subject_infos, specify_model, [('subject_info', 'subject_info')]),
