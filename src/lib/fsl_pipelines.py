@@ -106,10 +106,14 @@ def get_subject_infos(event_file, contrasts):
 	onsets = []
 	durations = []
 
+	event_files = [f for f in event_file if f.split('/')[-1].split('.')[0] in contrasts]
+	print(event_files)
+	print(contrasts)
+
 	for i, c in enumerate(sorted(contrasts)):
 		onset = []
 		duration = []
-		file = sorted(event_file)[i]
+		file = sorted(event_files)[i]
 		with open(file, 'rt') as f:
 			for line in f:
 				info = line.strip().split()
