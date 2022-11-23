@@ -1,3 +1,6 @@
+#python3
+#This script can be used to run fsl and spm pipelines with specific parameters. 
+
 import random
 import os 
 from os.path import join as opj
@@ -14,6 +17,7 @@ simplefilter(action='ignore', category=UserWarning)
 simplefilter(action='ignore', category=RuntimeWarning)
 
 if __name__ == "__main__":
+    # Options
     subject_list = []
     exp_dir = None
     result_dir = None
@@ -62,9 +66,11 @@ if __name__ == "__main__":
         print('All operations will be performed.')
         operation = ['preprocessing', 'l1']
 
+    # Load corresponding package
     package = 'lib.' + software + '_pipelines'
     pipeline = importlib.import_module(package)
 
+    # Directories
     working_dir = f'{software}_preprocessing/intermediate_results'
     output_dir = f'{software}_preprocessing'
 
@@ -83,9 +89,5 @@ if __name__ == "__main__":
             contrast_list, fwhm_list, nb_param)
 
         registration.run('MultiProc', plugin_args={'n_procs': 16})
-
-
-
-
 
 
