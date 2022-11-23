@@ -159,6 +159,15 @@ def get_subject_infos(event_file, contrasts):
         onsets.append(onset)
         durations.append(duration) # Add these onset and duration to global list 
 
+    subject_info = Bunch(conditions=cond_names,
+                             onsets=onsets, # Onsets and Durations contain list of lists with onsets and durations for every contrast
+                             durations=durations,
+                             amplitudes=None,
+                             regressor_names=None,
+                             regressors=None)
+
+    return subject_info
+
 def get_24_param(param_file):
     # Function to apply bash script on parameter file to obtain 24 MC parameters from the 6 firsts
     import os 
