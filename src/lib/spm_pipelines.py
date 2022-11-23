@@ -145,6 +145,8 @@ def get_subject_infos(event_file, contrasts):
     # Selection of only event files corresponding to selected contrasts
     event_files = [f for f in event_file if f.split('/')[-1].split('.')[0] in contrasts]
 
+    print(event_files)
+
     for i, c in enumerate(sorted(contrasts)):
         onset = [] # For each contrast, save the onset and duration
         duration = []
@@ -152,7 +154,6 @@ def get_subject_infos(event_file, contrasts):
         with open(file, 'rt') as f:
             for line in f:
                 info = line.strip().split()
-
                 onset.append(float(info[0])) 
                 duration.append(float(info[1]))
         onsets.append(onset)
