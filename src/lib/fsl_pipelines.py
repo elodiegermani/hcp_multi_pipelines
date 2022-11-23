@@ -113,7 +113,7 @@ def get_subject_infos(event_file, contrasts):
 	durations = []
 
 	# Selection of only event files corresponding to selected contrasts
-	event_files = [f for f in event_file if f.split('/')[-1].split('.')[0] in contrasts]
+	event_files = [f for f in sorted(event_file) if f.split('/')[-1].split('.')[0] in contrasts]
 
 	for i, c in enumerate(sorted(contrasts)):
 		onset = [] # For each contrast, save the onset and duration
