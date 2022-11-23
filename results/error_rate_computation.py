@@ -145,7 +145,7 @@ if __name__ == "__main__":
         gzip[0] = False
     if 'SPM' in exp_dir_group2:
         gzip[1] = False
-    '''
+    
     # If file containing list of groups doesn't exist, create it with random groups
     if not os.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
         random_subject_list = []
@@ -168,5 +168,5 @@ if __name__ == "__main__":
         file.close()
 
     compute_group_comparison(exp_dir_group1, exp_dir_group2, result_dir, random_subject_list, contrast_list, gzip=gzip)
-    '''
+    
     compute_error_rate(result_dir, n_iter, contrast_list)

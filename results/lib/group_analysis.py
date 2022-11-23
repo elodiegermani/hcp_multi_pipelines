@@ -117,10 +117,8 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
     estimate_contrast.inputs.contrasts = contrasts
     
     # Threshold maps using FWE correction and p < 0.05
-    threshold = MapNode(Threshold(use_topo_fdr=False,
-                                  use_fwe_correction=True,
-                                  height_threshold=0.05, 
-                                  extent_fdr_p_threshold=0, force_activation = True,
+    threshold = MapNode(Threshold(use_fwe_correction=True,
+                                  height_threshold=0.05,  
                                   height_threshold_type='p-value'), name = "threshold", iterfield = ["stat_image", "contrast_index"])
     
     threshold.inputs.contrast_index = [1, 2]
