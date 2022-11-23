@@ -147,7 +147,7 @@ if __name__ == "__main__":
         gzip[1] = False
     
     # If file containing list of groups doesn't exist, create it with random groups
-    if not os.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
+    if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
         random_subject_list = []
         for i in range(n_iter):
             random_subject_list.append(np.random.choice(subject_list, 100, False))
