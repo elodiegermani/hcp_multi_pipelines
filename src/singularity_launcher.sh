@@ -27,7 +27,7 @@ source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
 conda activate neuro
 
-for p in 0 6 24
+for p in 6 24
 do
 	for f in 5 8
 	do 
