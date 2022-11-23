@@ -2,7 +2,7 @@
 
 # Parameters
 expe_name="pipeline_transition"
-main_script=/srv/tempdd/egermani/pipeline_transition/results/singularity_launcher_error_rate.sh
+main_script=/srv/tempdd/egermani/hcp_pipelines/results/singularity_launcher_error_rate.sh
 
 
 echo "Create dir for log"

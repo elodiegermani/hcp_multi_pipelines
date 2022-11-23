@@ -4,7 +4,7 @@ output_file=$PATHLOG/$OAR_JOB_ID.txt
 
 # Parameters
 expe_name="pipeline_transition"
-main_script=/srv/tempdd/egermani/pipeline_transition/results/error_rate_computation.py
+main_script=/srv/tempdd/egermani/hcp_pipelines/results/error_rate_computation.py
 
 echo "Create dir for log"
 CURRENTDATE=`date +"%Y-%m-%d"`
