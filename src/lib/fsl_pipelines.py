@@ -270,7 +270,7 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 					  name = 'infosource')
 
 	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', contrast_list), ('fwhm', fwhm_list), ('nb_param', param_list), ('hrf', hrf)]
+	('contrast', range(1, len(contrast_list)+1)), ('fwhm', fwhm_list), ('nb_param', param_list), ('hrf', hrf)]
 
 	func2anat_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
