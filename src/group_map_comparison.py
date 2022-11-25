@@ -67,6 +67,8 @@ if __name__ == "__main__":
     ## working_dir : where the intermediate results will be stored
     working_dir = f"intermediate_results"
 
+    print(random_subject_list)
+
     l2_analysis = group_analysis.get_l2_analysis(exp_dir, output_dir, working_dir, result_dir,
         random_subject_list, contrast_list, gzip)
     l2_analysis.run('MultiProc', plugin_args={'n_procs': 16}) 
