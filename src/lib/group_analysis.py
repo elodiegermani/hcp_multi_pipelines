@@ -62,7 +62,7 @@ def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                  function = get_contrasts_maps),
                         name = 'sub_contrasts')
 
-    sub_contrasts.iterables('i', range(0, len(subject_list)))
+    sub_contrasts.iterables = ('i', range(0, len(subject_list)))
     n = len(subject_list[0])
 
     sub_contrasts.inputs.subject_list = subject_list
