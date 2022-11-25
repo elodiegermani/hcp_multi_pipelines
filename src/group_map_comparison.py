@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     random_subject_list = []
     for i in range(n_iter):
-        random_subject_list.append(np.random.choice(subject_list, n, True)) # Creates a list of list containing n random subjects
+        random_subject_list.append(np.random.choice(subject_list, n_sub, True)) # Creates a list of list containing n random subjects
 
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)
