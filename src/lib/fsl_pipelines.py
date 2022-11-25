@@ -269,8 +269,10 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 	infosource = Node(IdentityInterface(fields = ['subject_id', 'task', 'contrast', 'fwhm', 'nb_param', 'hrf']),
 					  name = 'infosource')
 
+	num_contrast = [i for i in range(1, len(contrast_list)+1)]
+
 	infosource.iterables = [('subject_id', subject_list), ('task', task_list), 
-	('contrast', range(1, len(contrast_list)+1)), ('fwhm', fwhm_list), ('nb_param', param_list), ('hrf', hrf)]
+	('contrast', num_contrast), ('fwhm', fwhm_list), ('nb_param', param_list), ('hrf', hrf)]
 
 	func2anat_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
