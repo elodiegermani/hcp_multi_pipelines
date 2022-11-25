@@ -21,7 +21,7 @@ o='["l1"]'
 S='fsl'
 t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
-hrf='no_derivatives'
+hrf='derivatives'
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate

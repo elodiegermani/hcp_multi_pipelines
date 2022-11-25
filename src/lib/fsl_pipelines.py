@@ -203,8 +203,10 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 	if hrf == ['derivatives']:
 		hrf_values = True
+		print('Use derivatives')
 	else:
 		hrf_values = False
+		print('No use derivatives')
 
 	l1_design = Node(Level1Design(bases = {'dgamma':{'derivs' : hrf_values}},
 								 interscan_interval = 0.72, 
@@ -235,8 +237,10 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 						])
 
 	if nb_param == [6]:
+		print('Use 6 MC param')
 		l1_analysis.connect([(selectfiles, specify_model, [('param', 'realignment_parameters')])])
 	elif nb_param == [24]:
+		print('Use 24 MC param')
 		param_extent = Node(Function(input_names=['param_file'],
 	   output_names=['out_file'],
 	   function=get_24_param),
