@@ -21,8 +21,8 @@ e=/srv/tempdd/egermani/pipeline_transition/data/original/"$dataset_name"/origina
 
 r=/srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name"
 S='["101006","105115","106319","109325","113316","114419","115017","117728","119126","120515","123117","130316","134223","134627","135124","137936","138332","140824","142424","144731","146129","146533","148335","151425","151526","152225","153934","154431","158035","158136","159441","160123","169040","169444","169545","172130","173637","174437","175035","175237","178142","180230","183337","185139","187143","188448","191336","192439","195445","198047"]'
-c='["rh","rf","lh","lf","cue"]'
-i=50
+c='["rh","rf","lh","lf","cue","t"]'
+i=1
 n=50
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
@@ -33,9 +33,11 @@ for fwhm in 5 8
 do
 	for mc in 0 6 24
 	do
-		dataset_name=DATASET_SOFT_SPM_FWHM_"$fwhm"_MC_PARAM_"$mc"
-		e=/srv/tempdd/egermani/pipeline_transition/data/original/"$dataset_name"/original
-		r=/srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name"
-		python3 $main_script -e $e -r $r -S $S -c $c --n_iter $i --n_sub $n 
+		for hrf in 0 1
+			dataset_name=DATASET_SOFT_SPM_FWHM_"$fwhm"_MC_PARAM_"$mc"_HRF_"$hrf"
+			e=/srv/tempdd/egermani/pipeline_transition/data/original/"$dataset_name"/original
+			r=/srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name"
+			python3 $main_script -e $e -r $r -S $S -c $c --n_iter $i --n_sub $n 
+done
 done
 done
