@@ -29,9 +29,9 @@ source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
 conda activate neuro
 
-for fwhm in 5 8
+for fwhm in 5
 do
-	for mc in 0 6 24
+	for mc in 6 24
 	do
 		for hrf in 0 1
 		do
