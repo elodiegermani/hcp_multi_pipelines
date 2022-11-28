@@ -138,15 +138,14 @@ def get_subject_infos(event_file, contrasts):
 	return subject_info
 
 def get_24_param(param_file):
-	# Function to apply bash script on parameter file to obtain 24 MC parameters from the 6 firsts
-	import os 
+    # Function to apply bash script on parameter file to obtain 24 MC parameters from the 6 firsts
+    import os 
 
-	out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
-	filePath = __file__
+    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
 
-	os.system(f'bash {os.path.dirname(filePath)}/mp_diffpow24.sh {param_file} {out_file}')
+    os.system(f'bash /srv/tempdd/egermani/hcp_pipelines/src/lib/mp_diffpow24.sh {param_file} {out_file}')
 
-	return out_file
+    return out_file
 
 def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, contrast_list, fwhm_list, nb_param, hrf):
 	"""
