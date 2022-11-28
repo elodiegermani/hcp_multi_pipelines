@@ -34,6 +34,7 @@ do
 	for mc in 0 6 24
 	do
 		for hrf in 0 1
+		do
 			dataset_name="DATASET_SOFT_SPM_FWHM_${fwhm}_MC_PARAM_${mc}_HRF_${hrf}"
 			e=/srv/tempdd/egermani/pipeline_transition/data/original/"$dataset_name"/original
 			r=/srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name"
