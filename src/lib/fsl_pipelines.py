@@ -141,7 +141,7 @@ def get_24_param(param_file):
     # Function to apply bash script on parameter file to obtain 24 MC parameters from the 6 firsts
     import os 
 
-    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))
+    out_file = os.path.join(os.path.dirname(param_file), '24_' + os.path.basename(param_file))[:-10] + 'par'
 
     os.system(f'bash /srv/tempdd/egermani/hcp_pipelines/src/lib/mp_diffpow24.sh {param_file} {out_file}')
 
