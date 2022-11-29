@@ -66,11 +66,11 @@ def compute_error_rate(result_dir, n_iter, contrast_list):
     for contrast in contrast_list: 
         for i in range(n_iter):
             # Files for contrast and iteration
-            stat_map_1 = opj(result_dir, f'final_results_group_comparison_999', 'l2_analysis', f'_contrast_{contrast}', 
+            stat_map_1 = opj(result_dir, f'final_results_group_comparison', 'l2_analysis', f'_contrast_{contrast}', 
                           f'_n_{i}', '_threshold0', 'spmT_0001_thr.nii')
-            stat_map_2 = opj(result_dir, f'final_results_group_comparison_999', 'l2_analysis', f'_contrast_{contrast}',
+            stat_map_2 = opj(result_dir, f'final_results_group_comparison', 'l2_analysis', f'_contrast_{contrast}',
                           f'_n_{i}', '_threshold1', 'spmT_0002_thr.nii')
-            mask = opj(opj(result_dir, f'final_results_group_comparison_999', 'l2_analysis', f'_contrast_{contrast}',
+            mask = opj(opj(result_dir, f'final_results_group_comparison', 'l2_analysis', f'_contrast_{contrast}',
                           f'_n_{i}', 'mask.nii'))
             # Remove NaNs
             stat_map_1_data = np.nan_to_num(nib.load(stat_map_1).get_fdata()) 
