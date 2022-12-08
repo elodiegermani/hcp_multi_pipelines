@@ -24,15 +24,15 @@ o='["registration"]'
 S='fsl'
 t='["MOTOR"]'
 c='["lf","rf","rh","lh","t","cue"]'
-p=24
+hrf='no_derivatives'
 
 source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
 conda activate neuro
 
-for hrf in derivatives
+for p in 0 6 24
 do
-	for f in 8 5
+	for f in 5 8
 	do 
 		python3 $main_script -e $e -r $r -s $s -o $o -S $S -t $t -c $c -f $f -p $p -h $hrf
 done
