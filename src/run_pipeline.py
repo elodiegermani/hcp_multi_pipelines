@@ -80,9 +80,10 @@ if __name__ == "__main__":
         preprocess.run('MultiProc', plugin_args={'n_procs': 16})
 
     if 'l1' in operation:
-        l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
-                                                contrast_list, fwhm_list, nb_param, hrf)
-        l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
+        for sub in subject_list:
+            l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, [sub], task_list, 
+                                                    contrast_list, fwhm_list, nb_param, hrf)
+            l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
 
     if 'registration' in operation:
         registration = pipeline.get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
