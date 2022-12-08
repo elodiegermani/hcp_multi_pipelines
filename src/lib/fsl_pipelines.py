@@ -281,8 +281,10 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
 	anat2target_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
-	stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+	cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
 		'results', 'cope{contrast}.nii.gz')
+	stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+		'results', '*stat{contrast}.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
 					'func2anat_transform': func2anat_transform_file, 
@@ -294,7 +296,7 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 	# DataSink Node - store the wanted results in the wanted repository
 	datasink = Node(DataSink(base_directory=result_dir, container=output_dir), name='datasink')
 
-	warpall = Node(ApplyWarp(interp='spline'),name='warpall')
+	warpall = MapNode(ApplyWarp(interp='spline'),name='warpall', iterfield=['in_file'])
 	warpall.inputs.ref_file = Info.standard_image('MNI152_T1_2mm_brain.nii.gz')
 	warpall.inputs.mask_file = Info.standard_image('MNI152_T1_2mm_brain_mask.nii.gz')
 
