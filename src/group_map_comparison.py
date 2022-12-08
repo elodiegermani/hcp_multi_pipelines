@@ -54,9 +54,26 @@ if __name__ == "__main__":
     if 'SPM' in exp_dir:
         gzip = False # SPM files are already unzipped
 
-    random_subject_list = []
-    for i in range(n_iter):
-        random_subject_list.append(np.random.choice(subject_list, n_sub, True)) # Creates a list of list containing n random subjects
+    # If file containing list of groups doesn't exist, create it with random groups
+    if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
+        random_subject_list = []
+        for i in range(n_iter):
+            random_subject_list.append(np.random.choice(subject_list, n_sub, False))
+
+        with open(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv'), 'w') as file:
+            for i, sub_list in enumerate(random_subject_list):
+                for j, sub in enumerate(sub_list):
+                    file.write(str(sub))
+                    if j != n_sub-1:
+                        file.write(',')
+                file.write('\n')
+        file.close()
+
+    else: # Read it if it exists
+        with open(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv'), 'r') as file:
+            reader = csv.reader(file)
+            random_subject_list = list(reader)
+        file.close()
 
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)
