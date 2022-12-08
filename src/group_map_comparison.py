@@ -54,6 +54,9 @@ if __name__ == "__main__":
     if 'SPM' in exp_dir:
         gzip = False # SPM files are already unzipped
 
+    if not os.path.exists(result_dir):
+        os.mkdir(result_dir)
+
     # If file containing list of groups doesn't exist, create it with random groups
     if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
         random_subject_list = []
@@ -74,9 +77,6 @@ if __name__ == "__main__":
             reader = csv.reader(file)
             random_subject_list = list(reader)
         file.close()
-
-    if not os.path.exists(result_dir):
-        os.mkdir(result_dir)
 
     ## output_dir : where the final results will be store
     output_dir = f"group_maps"
