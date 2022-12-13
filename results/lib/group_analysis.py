@@ -89,7 +89,8 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
                                   name = 'datasink_groupanalysis')
 
     # Gunzip Node if .gz files
-    gunzip = MapNode(Gunzip(), name = 'gunzip', iterfield=['in_file'])
+    gunzip_group1 = MapNode(Gunzip(), name = 'gunzip_group1', iterfield=['in_file'])
+    gunzip_group2 = MapNode(Gunzip(), name = 'gunzip_group2', iterfield=['in_file'])
     
     # Node to select subset of files corresponding to selected subjects
     sub_contrasts = Node(Function(input_names = ['group1_files', 'group2_files', 'subject_list', 'n'],
@@ -115,14 +116,6 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
                     ('2 > 1', 'T', ['Group_{1}', 'Group_{2}'], [-1, 1])]
 
     estimate_contrast.inputs.contrasts = contrasts
-    
-    # Threshold maps using FWE correction and p < 0.05
-    threshold = MapNode(Threshold(use_fwe_correction=True,
-                                  height_threshold=0.05,  
-                                  height_threshold_type='p-value'), name = "threshold", iterfield = ["stat_image", "contrast_index"])
-    
-    threshold.inputs.contrast_index = [1, 2]
-    threshold.synchronize = True
 
     # Create Workflow and make connections
     l2_analysis = Workflow(base_dir = opj(result_dir, working_dir), name = f"l2_analysis")
@@ -136,20 +129,17 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
         (estimate_model, datasink_groupanalysis, [('mask_image', f"l2_analysis.@mask")]),
         (estimate_contrast, datasink_groupanalysis, [('spm_mat_file', f"l2_analysis.@spm_mat"),
             ('spmT_images', f"l2_analysis.@T"),
-            ('con_images', f"l2_analysis.@con")]), 
-        (estimate_contrast, threshold, [('spm_mat_file', 'spm_mat_file'),
-            ('spmT_images', 'stat_image')]),
-        (threshold, datasink_groupanalysis, [('thresholded_map', 'l2_analysis.@thresh_map')])])
+            ('con_images', f"l2_analysis.@con")])])
     
     if gzip[0]: # If files from group1 are .gz, gunzip them before input to node 
-        l2_analysis.connect([(sub_contrasts, gunzip, [('group1_sublist', 'in_file')]), 
-            (gunzip, two_sample_t_test_design, [("out_file", 'group1_files')])])
+        l2_analysis.connect([(sub_contrasts, gunzip_group1, [('group1_sublist', 'in_file')]), 
+            (gunzip_group1, two_sample_t_test_design, [("out_file", 'group1_files')])])
     else: # Else, input to node directly
         l2_analysis.connect([(sub_contrasts, two_sample_t_test_design, [("group1_sublist", 'group1_files')])])
 
     if gzip[1]: # Idem for group2
-        l2_analysis.connect([(sub_contrasts, gunzip, [('group2_sublist', 'in_file')]), 
-            (gunzip, two_sample_t_test_design, [("out_file", 'group2_files')])])
+        l2_analysis.connect([(sub_contrasts, gunzip_group2, [('group2_sublist', 'in_file')]), 
+            (gunzip_group2, two_sample_t_test_design, [("out_file", 'group2_files')])])
     else:
         l2_analysis.connect([(sub_contrasts, two_sample_t_test_design, [('group2_sublist', 'group2_files')])])
 
