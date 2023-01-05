@@ -1,92 +1,172 @@
-# hcp_pipelines
+# PIPELINES COMPATIBILITY
+
+This repository contains pipelines used to analyse HCP fMRI data with FSL and SPM with several parameters. It also contains script to perform analyses on the results of these pipelines and to study analytical variability.
+
+## Table of contents
+   * [How to cite?](#how-to-cite)
+   * [Contents overview](#contents-overview)
+   * [Installing environment](#installing-environment)
+   * [Reproducing full analysis](#reproducing-full-analysis)
+   * [Reproducing figures and tables](#reproducing-figures-and-tables)
+
+## How to cite?
 
 
+## Contents overview
 
-## Getting started
+### `src`
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+This directory contains scripts and notebooks used to launch the analysis of raw data with pipelines. 
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### `data`
 
-## Add your files
+This directory is made to contain data that will be used by scripts/notebooks stored in the `src` directory and to contain results of those scripts. For details, check [here](#download-necessary-data).
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### `results`
 
+This directory contains notebooks and scripts that were used to analyze the results of the experiments. These notebooks were used to evaluate data compatibility between data obtained from different pipelines. 
+
+### `figures`
+
+This directory contains figures and csv files obtained when running the notebooks in the `results` directory.
+
+## Installing environment 
+
+To use the notebooks and launch the pipelines, you need to install the [NiPype](https://nipype.readthedocs.io/en/latest/users/install.html) Python package but also the original software package used in the pipeline (SPM, FSL, AFNI...). 
+
+To facilitate this step, we created a Docker container based on [Neurodocker](https://github.com/ReproNim/neurodocker) that contains the necessary Python packages and software packages. To install the Docker image, two options are available.
+
+### Option 1: Using Dockerhub
+```bash
+docker pull elodiegermani/open_pipeline:latest
 ```
-cd existing_repo
-git remote add origin https://gitlab.inria.fr/egermani/hcp_pipelines.git
-git branch -M main
-git push -uf origin main
+
+The image should install itself. Once it's done you can check available images on your system:
+
+```bash
+docker images
 ```
 
-## Integrate with your tools
+### Option 2: Using a Dockerfile 
+The Dockerfile used for the image stored on Dockerhub is available on the GitHub repository. But you might want to personalize your Dockerfile to install only the necessary software packages. To do so, modify the command below to modify the Dockerfile: 
 
-- [ ] [Set up project integrations](https://gitlab.inria.fr/egermani/hcp_pipelines/-/settings/integrations)
+```bash
+docker run --rm repronim/neurodocker:0.7.0 generate docker \
+           --base neurodebian:stretch-non-free --pkg-manager apt \
+           --install git \
+           --fsl version=6.0.3 \
+           --afni version=latest method=binaries install_r=true install_r_pkgs=true install_python2=true install_python3=true \
+           --spm12 version=r7771 method=binaries \
+           --user=neuro \
+           --workdir /home \
+           --miniconda create_env=neuro \
+                       conda_install="python=3.8 traits jupyter nilearn graphviz nipype scikit-image" \
+                       pip_install="matplotlib" \
+                       activate=True \
+           --env LD_LIBRARY_PATH="/opt/miniconda-latest/envs/neuro:$LD_LIBRARY_PATH" \
+           --run-bash "source activate neuro" \
+           --user=root \
+           --run 'chmod 777 -Rf /home' \
+           --run 'chown -R neuro /home' \
+           --user=neuro \
+           --run 'mkdir -p ~/.jupyter && echo c.NotebookApp.ip = \"0.0.0.0\" > ~/.jupyter/jupyter_notebook_config.py' > Dockerfile
+```
 
-## Collaborate with your team
+When you are satisfied with your Dockerfile, just build the image:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```bash
+docker build --tag [name_of_the_image] - < Dockerfile
+```
 
-## Test and Deploy
+When the installation is finished, you have to build a container using the command below:
 
-Use the built-in continuous integration in GitLab.
+```bash
+docker run 	-ti \
+		-p 8888:8888 \
+		elodiegermani/open_pipeline
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+On this command line, you need to add volumes to be able to link with your local files (original dataset and git repository). If you stored the original dataset in `data/original`, just make a volume with the `hcp_pipelines` directory:
 
-***
+```bash
+docker run 	-ti \
+		-p 8888:8888 \
+		-v /users/egermani/Documents/hcp_pipelines:/home/ \
+		elodiegermani/open_pipeline
+``` 
 
-# Editing this README
+After that, your container will be launched! 
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Other command that could be useful: 
+#### START THE CONTAINER 
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```bash
+docker start [name_of_the_container]
+```
 
-## Name
-Choose a self-explaining name for your project.
+#### VERIFY THE CONTAINER IS IN THE LIST 
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```bash
+docker ps
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### EXECUTE BASH OR ATTACH YOUR CONTAINER 
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```bash
+docker exec -ti [name_of_the_container] bash
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**OR**
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+docker attach [name_of_the_container]
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Useful command inside the container: 
+#### ACTIVATE CONDA ENVIRONMENT
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+source activate neuro
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+#### LAUNCH JUPYTER NOTEBOOK
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```bash
+jupyter notebook --port=8888 --no-browser --ip=0.0.0.0
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### If you did not use your container for a while: 
+#### VERIFY IT STILL RUN : 
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+docker ps -l
+```
 
-## License
-For open source projects, say how it is licensed.
+#### IF YOUR DOCKER CONTAINER IS IN THE LIST, RUN :
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+docker start [name_of_the_container]
+```
+
+#### ELSE, RERUN IT WITH : 
+
+```bash
+docker run 	-ti \
+		-p 8888:8888 \
+		-v /home/egermani:/home \
+		[name_of_the_image]
+```
+
+### To use SPM inside the container, use this command at the beginning of your script:
+
+```python
+from nipype.interfaces import spm
+matlab_cmd = '/opt/spm12-r7771/run_spm12.sh /opt/matlabmcr-2010a/v713/ script'
+spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd, use_mcr=True)
+```
+
+## Reproducing full analysis
+
+
+## Reproducing figures and tables
+

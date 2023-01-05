@@ -281,10 +281,13 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
 	anat2target_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
-	cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
-		'results', 'cope{contrast}.nii.gz')
+	#cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+	#	'results', 'cope{contrast}.nii.gz')
 	stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
 		'results', '*stat{contrast}.nii.gz')
+
+	#stat_file = opj(output_dir, 'l1_analysis_fsl', '_contrast_{contrast}_fwhm_{fwhm}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+#		'results', '*stat1.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
 					'func2anat_transform': func2anat_transform_file, 

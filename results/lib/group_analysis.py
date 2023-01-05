@@ -10,7 +10,7 @@ from nipype.interfaces.spm import (Coregister, Smooth, OneSampleTTestDesign, Est
                                    Level1Design, TwoSampleTTestDesign, Realign, 
                                    Normalize12, NewSegment)
 from nipype.interfaces.fsl import ExtractROI, Info
-from nipype.interfaces.spm import Threshold 
+#from nipype.interfaces.spm import ThresholdStatistics
 from nipype.algorithms.modelgen import SpecifySPMModel
 from nipype.interfaces.utility import IdentityInterface, Function
 from nipype.interfaces.io import SelectFiles, DataSink
@@ -52,6 +52,19 @@ def get_groups_maps(group1_files, group2_files, subject_list, n):
             group2_sublist.append(file) 
     
     return group1_sublist, group2_sublist
+
+def get_threshold_images(threshold, image):
+    from nilearn.image import threshold_img
+    import nibabel as nib 
+    import os
+
+    nii_img = nib.load(image)
+    nii_img_thresh = threshold_img(nii_img, threshold)
+
+    f_path = os.path.dirname(image) + os.path.basename(image).split('.')[0] + 'threshold_bonferroni.nii'
+    nib.save(nii_img_thresh, f_path)
+
+    return f_path
 
 def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir, working_dir, result_dir, subject_list, contrast_list, gzip=[True, True]): 
     """
@@ -117,6 +130,15 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
 
     estimate_contrast.inputs.contrasts = contrasts
 
+    #threshold = MapNode(ThresholdStatistics(height_threshold=0.001), name='threshold', iterfield=['contrast_index', 'stat_image'])
+
+    #threshold.inputs.contrast_index = [1,2]
+
+    #threshold.synchronize = True
+
+    #threshold_img = Node(Function(input_names=['threshold', 'image'], 
+    #    output_names = ['nii_img_thresh'], function = get_threshold_images), name = 'threshold_img')
+
     # Create Workflow and make connections
     l2_analysis = Workflow(base_dir = opj(result_dir, working_dir), name = f"l2_analysis")
 
@@ -130,6 +152,12 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
         (estimate_contrast, datasink_groupanalysis, [('spm_mat_file', f"l2_analysis.@spm_mat"),
             ('spmT_images', f"l2_analysis.@T"),
             ('con_images', f"l2_analysis.@con")])])
+
+        #(estimate_contrast, threshold, [('spm_mat_file', 'spm_mat_file'), 
+        #    ('spmT_images', 'stat_image')]), 
+        #(threshold, threshold_img, [('voxelwise_P_Bonf', 'threshold')]), 
+        #(estimate_contrast, threshold_img, [('spmT_images', 'image')]), 
+        #(threshold_img, datasink_groupanalysis, [('nii_img_thresh', f'l2_analysis.@threshold_img')])])
     
     if gzip[0]: # If files from group1 are .gz, gunzip them before input to node 
         l2_analysis.connect([(sub_contrasts, gunzip_group1, [('group1_sublist', 'in_file')]), 

@@ -14,11 +14,11 @@ PATHLOG="/srv/tempdd/egermani/Logs/${CURRENTDATE}_OARID_${OAR_JOB_ID}"
 
 output_file=$PATHLOG/$OAR_JOB_ID.txt
 
-for fwhm in 8
+for fwhm in 5
 do 
-	for param in 0 6
+	for param in 24
 	do 
-		for hrf in 0 1
+		for hrf in 1
 		do
 			dataset_A_name="DATASET_SOFT_FSL_FWHM_${fwhm}_MC_PARAM_${param}_HRF_${hrf}"
 			dataset_B_name="DATASET_SOFT_FSL_FWHM_${fwhm}_MC_PARAM_${param}_HRF_${hrf}"

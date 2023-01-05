@@ -24,10 +24,10 @@ def get_contrasts_maps(contrast_map, subject_list, i):
     '''
     contrast_map_sublist = []
 
-    sub_subject_list = subject_list[i]
+    sub_subject_list = subject_list[i-1]
 
     for file in contrast_map:
-        sub_id = file.split('/')[-1].split('_')[-3]
+        sub_id = file.split('/')[-1].split('_')[1]
         if sub_id in sub_subject_list:
             contrast_map_sublist.append(file)  
 
@@ -62,7 +62,7 @@ def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
                                  function = get_contrasts_maps),
                         name = 'sub_contrasts')
 
-    sub_contrasts.iterables = ('i', range(0, len(subject_list)))
+    sub_contrasts.iterables = ('i', range(1, len(subject_list)+1))
     n = len(subject_list[0])
 
     sub_contrasts.inputs.subject_list = subject_list
