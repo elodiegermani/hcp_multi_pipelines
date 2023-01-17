@@ -50,6 +50,8 @@ def get_groups_maps(group1_files, group2_files, subject_list, n):
         sub_id = file.split('/')[-1].split('_')[-3]
         if sub_id in group2_subjects:
             group2_sublist.append(file) 
+
+    print(group1_sublist)
     
     return group1_sublist, group2_sublist
 
@@ -101,9 +103,6 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
     datasink_groupanalysis = Node(DataSink(base_directory = result_dir, container = output_dir), 
                                   name = 'datasink_groupanalysis')
 
-    # Gunzip Node if .gz files
-    gunzip_group1 = MapNode(Gunzip(), name = 'gunzip_group1', iterfield=['in_file'])
-    gunzip_group2 = MapNode(Gunzip(), name = 'gunzip_group2', iterfield=['in_file'])
     
     # Node to select subset of files corresponding to selected subjects
     sub_contrasts = Node(Function(input_names = ['group1_files', 'group2_files', 'subject_list', 'n'],
@@ -160,12 +159,15 @@ def get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir,
         #(threshold_img, datasink_groupanalysis, [('nii_img_thresh', f'l2_analysis.@threshold_img')])])
     
     if gzip[0]: # If files from group1 are .gz, gunzip them before input to node 
+        # Gunzip Node if .gz files
+        gunzip_group1 = MapNode(Gunzip(), name = 'gunzip_group1', iterfield=['in_file'])
         l2_analysis.connect([(sub_contrasts, gunzip_group1, [('group1_sublist', 'in_file')]), 
             (gunzip_group1, two_sample_t_test_design, [("out_file", 'group1_files')])])
     else: # Else, input to node directly
         l2_analysis.connect([(sub_contrasts, two_sample_t_test_design, [("group1_sublist", 'group1_files')])])
 
     if gzip[1]: # Idem for group2
+        gunzip_group2 = MapNode(Gunzip(), name = 'gunzip_group2', iterfield=['in_file'])
         l2_analysis.connect([(sub_contrasts, gunzip_group2, [('group2_sublist', 'in_file')]), 
             (gunzip_group2, two_sample_t_test_design, [("out_file", 'group2_files')])])
     else:

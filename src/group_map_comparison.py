@@ -59,12 +59,12 @@ if __name__ == "__main__":
         os.mkdir(result_dir)
 
     # If file containing list of groups doesn't exist, create it with random groups
-    if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
+    if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), f'groups_n_{n_sub}.csv')):
         random_subject_list = []
         for i in range(n_iter):
             random_subject_list.append(np.random.choice(subject_list, n_sub, False))
 
-        with open(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv'), 'w') as file:
+        with open(opj(('/').join(result_dir.split('/')[:-1]), f'groups_n_{n_sub}.csv'), 'w') as file:
             for i, sub_list in enumerate(random_subject_list):
                 for j, sub in enumerate(sub_list):
                     file.write(str(sub))
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         file.close()
 
     else: # Read it if it exists
-        with open(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv'), 'r') as file:
+        with open(opj(('/').join(result_dir.split('/')[:-1]), f'groups_n_{n_sub}.csv'), 'r') as file:
             reader = csv.reader(file)
             random_subject_list = list(reader)
         file.close()

@@ -142,9 +142,9 @@ if __name__ == "__main__":
     gzip = [True, True]
     # If SPM files, already unziped so no need to re-unzip them during pipeline
     if 'SPM' in exp_dir_group1:
-        gzip[0] = False
+        gzip[0] = True
     if 'SPM' in exp_dir_group2:
-        gzip[1] = False
+        gzip[1] = True
     
     # If file containing list of groups doesn't exist, create it with random groups
     if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
@@ -166,6 +166,7 @@ if __name__ == "__main__":
             reader = csv.reader(file)
             random_subject_list = list(reader)
         file.close()
+        print(random_subject_list)
 
     compute_group_comparison(exp_dir_group1, exp_dir_group2, result_dir, random_subject_list, contrast_list, gzip=gzip)
     

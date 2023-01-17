@@ -296,14 +296,14 @@ def cluster_pca(pca, maps, n_clusters):
             label = f'Cluster {c}')
 
     for i, label in enumerate(annotations):
-        plt.annotate(annotations[i], (x[i], y[i]))
-    plt.legend()
+        plt.annotate(annotations[i], (x[i], y[i]), size=16, weight='bold')
+    plt.legend(prop={'size': 16, 'weight':'bold'})
 
     centers = model.cluster_centers_
 
     for c in range(len(centers)):
         plt.scatter(centers[c][0], centers[c][1], s=200, c=col_list[c], marker='s')
-    plt.title('Clustering of group statistic maps on PCA components.')
+    plt.title('Clustering of group statistic maps on PCA components.', size=16, weight='bold')
 
     plt.show()
     mode = maps[0].split('/')[-4]

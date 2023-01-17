@@ -87,7 +87,7 @@ def get_correlation_matrix_group(contrast_list, data_dir, software='all'):
         p_global = sorted(glob.glob(f'{data_dir}/*{software}*/original/*'))
 
     p = [img for img in sorted(p_global) if os.path.basename(img).split('_')[-1].split('.')[0] in contrast_list]
-    pipelines = [img.split('/')[-3] for img in sorted(p)]
+    pipelines = [img.split('/')[-3].split('_')[2]+', FWHM '+img.split('/')[-3].split('_')[4]+', MC '+img.split('/')[-3].split('_')[7] +', HRF ' + img.split('/')[-3].split('_')[9] for img in sorted(p)]
 
     target_corr = np.zeros((len(p), len(p)))
 
@@ -163,14 +163,14 @@ def plot_hierarchical_clustering_group(contrast_list, data_dir, software='all'):
         else:
             colors.append('blue')
 
-    cm = seaborn.clustermap(cc_df,cmap='vlag',method='ward',vmin=-1,vmax=1, figsize=(16, 10), xticklabels=False)
+    cm = seaborn.clustermap(cc_df,cmap='vlag',method='ward',vmin=-1,vmax=1, figsize=(16, 12), xticklabels=False)
     cm.fig.suptitle(f'CONTRAST {contrast_list[0].upper()}', 
         size=24, fontweight='bold') 
 
     #cm.ax_heatmap.tick_params(left=True, bottom=False)
 
     #cm.ax_heatmap.set_xticklabels(cm.ax_heatmap.get_xmajorticklabels(), fontsize = 16, fontweight='bold')
-    cm.ax_heatmap.set_yticklabels(cm.ax_heatmap.get_ymajorticklabels(), fontsize = 16, fontweight='bold')
+    cm.ax_heatmap.set_yticklabels(cm.ax_heatmap.get_ymajorticklabels(), fontsize = 22, fontweight='bold')
 
     #for i, ticklabel in enumerate(cm.ax_heatmap.xaxis.get_majorticklabels()):
     #    if 'FSL' in ticklabel.get_text():
