@@ -29,13 +29,13 @@ source /opt/miniconda-latest/etc/profile.d/conda.sh
 source /opt/miniconda-latest/bin/activate
 conda activate neuro
 
-for fwhm in 5 8
+for fwhm in 8
 do
 	for mc in 0 6 24
 	do
 		for hrf in 0 1
 		do
-			dataset_name="DATASET_SOFT_FSL_FWHM_${fwhm}_MC_PARAM_${mc}_HRF_${hrf}"
+			dataset_name="DATASET_SOFT_SPM_FWHM_${fwhm}_MC_PARAM_${mc}_HRF_${hrf}"
 			e=/srv/tempdd/egermani/pipeline_transition/data/original/"$dataset_name"/original
 			r=/srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name"
 			python3 $main_script -e $e -r $r -S $S -c $c --n_iter $i --n_sub $n 

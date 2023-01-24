@@ -31,6 +31,8 @@ def get_contrasts_maps(contrast_map, subject_list, i):
         if sub_id in sub_subject_list:
             contrast_map_sublist.append(file)  
 
+    print(contrast_map_sublist)
+
     return contrast_map_sublist
 
 def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, contrast_list, gzip=True): 
