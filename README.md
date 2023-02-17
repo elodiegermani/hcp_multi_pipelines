@@ -1,13 +1,13 @@
-# PIPELINES COMPATIBILITY
+# HCP PIPELINES 
 
-This repository contains pipelines used to analyse HCP fMRI data with FSL and SPM with several parameters. It also contains script to perform analyses on the results of these pipelines and to study analytical variability.
+This repository contains pipelines used to analyse HCP fMRI data with subject-level analytic pipelines using FSL and SPM and different parameters. It also contains scripts to perform group-level analysis: one sample t-test (within group) and two sample t-tests (between groups). 
 
 ## Table of contents
    * [How to cite?](#how-to-cite)
    * [Contents overview](#contents-overview)
    * [Installing environment](#installing-environment)
-   * [Reproducing full analysis](#reproducing-full-analysis)
-   * [Reproducing figures and tables](#reproducing-figures-and-tables)
+   * [Reproducing subject-level analyses](#reproducing-subject-level-analyses)
+   * [Reproducing group-level analyses](#reproducing-group-level-analyses)
 
 ## How to cite?
 
@@ -165,8 +165,32 @@ matlab_cmd = '/opt/spm12-r7771/run_spm12.sh /opt/matlabmcr-2010a/v713/ script'
 spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd, use_mcr=True)
 ```
 
-## Reproducing full analysis
+## Reproducing subject-level analyses
 
+Subject-level preprocessing and statistical analyses can be launched using the `src/run_pipeline.py` script. 
+How to use: 
+```bash
+python3 run_pipeline.py -e /srv/tempdd/egermani/hcp_pipelines/data/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived -s '["100206"]' -o '["l1"]' -S 'SPM' -t '["MOTOR"]' -c '["rh"]' -f 8 -p 0 -h 'derivatives'
+```
+This will perform the l1 analysis of subject 100206 with SPM, for contrast 'rh' (right hand) of MOTOR task. Parameters of the pipelines are: fwhm 8mm, no motion regressors and use of HRF derivatives. 
 
-## Reproducing figures and tables
+## Reproducing group-level analyses
 
+### Within-group analysis 
+Within-group analysis can be used to obtain group statistic maps of different pipelines and to compare these maps at a higher level. 
+These can be done using the `src/run_group_analysis.py` script.
+How to use:
+```bash
+python3 group_map_comparison.py -e /srv/tempdd/egermani/hcp_pipelines/data/derived/subject_level/"$dataset_name"/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name" -s '["100206","100307","100410",...]' -c '["rh"]' -n 1000 -i 3
+```
+This will perform the within-group analysis for 1000 groups formed from the list of subjects given with i=3 subjects in each group. 
+
+### Between-group analysis
+Between-group analysis can be used to obtain group statistic maps comparing groups of the same pipeline or of different pipelines. These can then be used to compute error rates between pipelines. 
+These can be done using the `src/run_between_groups_analysis.py`
+How to use:
+```bash
+python3 between_groups_analysis.py -g1 /srv/tempdd/egermani/hcp_pipelines/data/derived/"$dataset1"/original -g2 /srv/tempdd/egermani/hcp_pipelines/data/derived/"$dataset2"/original -S '["100206", ...]' -c '["rh"]' -r /srv/tempdd/egermani/hcp_pipelines/figures/ER_"$dataset1"_VS_"$dataset2" -i 1000
+```
+This will compute the between-group maps between dataset1 and dataset2, for 1000 groups. Group file must be stored in the directory used in the -r option. 
+For now, this script does not compute error rates.

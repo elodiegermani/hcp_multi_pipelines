@@ -19,32 +19,6 @@ simplefilter(action='ignore', category=FutureWarning)
 simplefilter(action='ignore', category=UserWarning)
 simplefilter(action='ignore', category=RuntimeWarning)
 
-def compute_group_comparison(exp_dir_group1, exp_dir_group2, result_dir, subject_list, contrast_list, gzip=[True, True]):
-    """
-    Function to run Nipype workflow corresponding to group comparisons. 
-    Parameters:
-        - exp_dir_group1: str, path to directory where to find files from group1
-        - exp_dir_group2: str, path to directory where to find files from group2
-        - result_dir: str, path to directory where to store results and intermediate results
-        - subject_list: list of list of str, lists of subjects to use for each iteration
-        - contrast_list: list of str, list of contrast to which perform analysis 
-        - gzip: list of Bool, perform gunzip or not on file for group1 and 2 (depend on wether files are already unzipped or not)
-    """  
-
-    # Important directories
-    if not os.path.exists(result_dir):
-        os.mkdir(result_dir)
-
-    ## working_dir : where the intermediate outputs will be store
-    working_dir = f"intermediate_results"
-    ## output_dir : where the final results will be store
-    output_dir = f"final_results_group_comparison"
-
-    # Create workflow and run it
-    l2_analysis_generated = group_analysis.get_l2_analysis_group_comparison(exp_dir_group1, exp_dir_group2, output_dir, working_dir, result_dir, 
-        subject_list, contrast_list, gzip=gzip)
-    l2_analysis_generated.run('MultiProc', plugin_args={'n_procs': 16})
-
 def compute_error_rate(result_dir, n_iter, contrast_list):
     '''
     Compute error rate between the two groups by taking the percentage of images having at least one active voxel among the n_iter images.
@@ -142,9 +116,9 @@ if __name__ == "__main__":
     gzip = [True, True]
     # If SPM files, already unziped so no need to re-unzip them during pipeline
     if 'SPM' in exp_dir_group1:
-        gzip[0] = True
+        gzip[0] = False
     if 'SPM' in exp_dir_group2:
-        gzip[1] = True
+        gzip[1] = False
     
     # If file containing list of groups doesn't exist, create it with random groups
     if not os.path.exists(opj(('/').join(result_dir.split('/')[:-1]), 'groups.csv')):
@@ -167,7 +141,5 @@ if __name__ == "__main__":
             random_subject_list = list(reader)
         file.close()
         print(random_subject_list)
-
-    compute_group_comparison(exp_dir_group1, exp_dir_group2, result_dir, random_subject_list, contrast_list, gzip=gzip)
     
     compute_error_rate(result_dir, n_iter, contrast_list)

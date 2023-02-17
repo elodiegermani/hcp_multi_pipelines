@@ -1,5 +1,4 @@
 fprintf(1,'Executing %s at %s:\n',mfilename(),datestr(now));
-fprintf(1,'Executing %s at %s:\n',mfilename(),datestr(now));
 ver,
 try,
 if isempty(which('spm')),

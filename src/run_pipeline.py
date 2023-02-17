@@ -1,5 +1,6 @@
 #python3
 #This script can be used to run fsl and spm pipelines with specific parameters. 
+#Use : python3 run_pipeline.py -e /srv/tempdd/egermani/hcp_pipelines/data/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived -s '["100206"]' -o '["l1"]' -S 'SPM' -t '["MOTOR"]' -c '["rh"]' -f 8 -p 0 -h 'derivatives'
 
 import random
 import os 
@@ -80,9 +81,9 @@ if __name__ == "__main__":
         preprocess.run('MultiProc', plugin_args={'n_procs': 16})
 
     if 'l1' in operation:
-        l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, [sub], task_list, 
+        l1_analysis = pipeline.get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 
                                                     contrast_list, fwhm_list, nb_param, hrf)
-        l1_analysis.run('MultiProc', plugin_args={'n_procs': 16})
+        l1_analysis.run('MultiProc', plugin_args={'n_procs':16})
 
     if 'registration' in operation:
         registration = pipeline.get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list, task_list, 

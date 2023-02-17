@@ -1,3 +1,6 @@
+#python3
+# This script contains functions to perform second level analysis (one sample t-test) on HCP data. 
+
 from nipype.interfaces import spm
 matlab_cmd = '/opt/spm12-r7771/run_spm12.sh /opt/matlabmcr-2010a/v713/ script'
 spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd, use_mcr=True)
@@ -21,6 +24,15 @@ import json
 
 def get_contrasts_maps(contrast_map, subject_list, i):
     ''' 
+    Functions to select only contrast maps corresponding to selected subjects.
+
+    Parameters
+        - contrast_map: list of str, list containing paths to all contrast maps of the dataset
+        - subject_list: list of list of str, list containing lists of subjects in groups for each iteration 
+        - i: int, iteration
+
+    Returns
+        - contrast_maps_sublist: list of str, list containing paths to selected contrast maps
     '''
     contrast_map_sublist = []
 
@@ -31,12 +43,22 @@ def get_contrasts_maps(contrast_map, subject_list, i):
         if sub_id in sub_subject_list:
             contrast_map_sublist.append(file)  
 
-    print(contrast_map_sublist)
-
     return contrast_map_sublist
 
 def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, contrast_list, gzip=True): 
     """
+    Returns the SPM L2 analysis with one sample t-test workflow.
+    Parameters: 
+        - exp_dir: str, directory where raw data are stored
+        - result_dir: str, directory where results will be stored
+        - working_dir: str, name of the sub-directory for intermediate results
+        - output_dir: str, name of the sub-directory for final results
+        - subject_list: list of list of str, list containing lists of subjects in groups for each iteration
+        - contrast_list: list of str, contrast for which to perform the analysis
+        - gzip: bool, whether the files are gzipped or not (if True, perform gunzip)
+
+    Returns:
+        - l2_analysis: Nipype WorkFlow 
     """         
     # Infosource - a function free node to iterate over the list of subject names
     infosource_groupanalysis = Node(IdentityInterface(fields=['contrast']),
@@ -55,8 +77,6 @@ def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
     # Datasink node : to save important files 
     datasink_groupanalysis = Node(DataSink(base_directory = result_dir, container = output_dir), 
                                   name = 'datasink_groupanalysis')
-
-    gunzip = MapNode(Gunzip(), name = 'gunzip', iterfield=['in_file'])
     
     # Node to select subset of contrasts
     sub_contrasts = Node(Function(input_names = ['contrast_map', 'subject_list', 'i'],
@@ -93,6 +113,7 @@ def get_l2_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
     one_sample_t_test_design = Node(OneSampleTTestDesign(), name = 'one_sample_t_test_design')
     
     if gzip:
+        gunzip = MapNode(Gunzip(), name = 'gunzip', iterfield=['in_file'])
         l2_analysis.connect([(sub_contrasts, gunzip, [('contrast_map_sublist', 'in_file')]), 
             (gunzip, one_sample_t_test_design, [("out_file", 'in_files')]),
             (one_sample_t_test_design, estimate_model, [('spm_mat_file', 'spm_mat_file')])])

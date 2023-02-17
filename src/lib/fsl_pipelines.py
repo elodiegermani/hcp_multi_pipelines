@@ -215,7 +215,7 @@ def get_l1_analysis(exp_dir, output_dir, working_dir, result_dir, subject_list, 
 
 	model_generation = Node(FEATModel(), name = 'model_generation')
 
-	model_estimate = Node(FILMGLS(), name='model_estimate')
+	model_estimate = Node(FILMGLS(full_data=False, autocorr_noestimate=True), name='model_estimate')
 
 	# Create l1 analysis workflow and connect its nodes
 	l1_analysis = Workflow(base_dir = opj(result_dir, working_dir), name = "l1_analysis_fsl")
@@ -281,17 +281,14 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		'{subject_id}_3T_tfMRI_{task}_LR_dtype_roi_flirt.mat')
 	anat2target_transform_file = opj(output_dir, 'preprocess_fsl', '_fwhm_{fwhm}_subject_id_{subject_id}_task_{task}', 
 		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
-	#cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
-	#	'results', 'cope{contrast}.nii.gz')
-	stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
-		'results', '*stat{contrast}.nii.gz')
-
-	#stat_file = opj(output_dir, 'l1_analysis_fsl', '_contrast_{contrast}_fwhm_{fwhm}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
-#		'results', '*stat1.nii.gz')
+	cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+		'results', 'cope{contrast}.nii.gz')
+	#stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+#		'results', '*stat{contrast}.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
 					'func2anat_transform': func2anat_transform_file, 
-					'stat': stat_file}
+					'cope': cope_file}
 
 	# SelectFiles node - to select necessary files
 	selectfiles = Node(SelectFiles(template, base_directory=result_dir), name = 'selectfiles')
@@ -312,7 +309,7 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 												   ('nb_param', 'nb_param'), ('hrf', 'hrf')]),
 						(selectfiles, warpall, [('func2anat_transform', 'premat'), 
 							('anat2target_transform', 'field_file'), 
-							('stat', 'in_file')]), 
+							('cope', 'in_file')]), 
 						(warpall, datasink, [('out_file', 'registration_fsl.@reg_map')])])
 
 	return registration
