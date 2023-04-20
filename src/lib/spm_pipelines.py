@@ -60,15 +60,15 @@ def get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list
     gunzip_func = Node(Gunzip(), name = 'gunzip_func')
 
     ## Motion correction
-    motion_correction = Node(Realign(register_to_mean = True), 
-                                name = 'motion_correction')
+    realign = Node(Realign(register_to_mean = True), 
+                                name = 'realign')
     ## Coregistration 
-    coreg = Node(Coregister(jobtype = 'estimate', 
+    coregistration = Node(Coregister(jobtype = 'estimate', 
                            cost_function = 'nmi', 
                            fwhm = [7, 7], 
                            separation = [4, 2], 
                            tolerance=[0.02, 0.02, 0.02, 0.001, 0.001, 0.001, 0.01, 0.01, 
-                                      0.01, 0.001, 0.001, 0.001]), name = 'coreg')
+                                      0.01, 0.001, 0.001, 0.001]), name = 'coregistration')
 
     ## Segmentation  
     tissue1 = [('/opt/spm12-r7771/spm12_mcr/spm12/tpm/TPM.nii', 1), 1, (True,False), (False, False)]
@@ -79,17 +79,17 @@ def get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list
     tissue6 = [('/opt/spm12-r7771/spm12_mcr/spm12/tpm/TPM.nii', 6), 2, (False,False), (False, False)]
     tissue_list = [tissue1, tissue2, tissue3, tissue4, tissue5, tissue6]
     
-    seg = Node(NewSegment(write_deformation_fields = [True, True], tissues = tissue_list, 
+    segment = Node(NewSegment(write_deformation_fields = [True, True], tissues = tissue_list, 
                          channel_info = (0.001, 60, (True, True)), 
                          warping_regularization = [0, 0.001, 0.5, 0.05, 0.2],
                          affine_regularization = 'mni', 
-                         sampling_distance = 3), name = 'seg')
+                         sampling_distance = 3), name = 'segment')
     
     ## Normalization
-    norm_func = Node(Normalize12(jobtype = 'write', write_voxel_sizes = [2, 2, 2],
+    normalize_functional = Node(Normalize12(jobtype = 'write', write_voxel_sizes = [2, 2, 2],
                                 write_interp = 4, write_bounding_box = [[-78, -112, -70], 
                                                                         [78, 76, 85]]),
-                     name = 'norm_func')
+                     name = 'normalize_functional')
 
     ## Smoothing
     smooth = Node(Smooth(implicit_masking = False), name = 'smooth')
@@ -105,18 +105,18 @@ def get_preprocessing(exp_dir, result_dir, working_dir, output_dir, subject_list
                             (infosource_preproc, smooth, [('fwhm', 'fwhm')]),
                            (selectfiles_preproc, gunzip_func, [('func', 'in_file')]),
                            (selectfiles_preproc, gunzip_anat, [('anat', 'in_file')]),
-                           (gunzip_func, motion_correction, [('out_file', 'in_files')]),
-                           (motion_correction, coreg, [('mean_image', 'source'), 
+                           (gunzip_func, realign, [('out_file', 'in_files')]),
+                           (realign, coregistration, [('mean_image', 'source'), 
                                                        ('realigned_files', 'apply_to_files')]),
-                           (gunzip_anat, coreg, [('out_file', 'target')]),
-                           (gunzip_anat, seg, [('out_file', 'channel_files')]),
-                           (coreg, norm_func, [('coregistered_files', 'apply_to_files')]),
-                           (seg, norm_func, [('forward_deformation_field', 'deformation_file')]),
-                           (norm_func, smooth, [('normalized_files', 'in_files')]),
-                           (motion_correction, datasink_preproc, 
+                           (gunzip_anat, coregistration, [('out_file', 'target')]),
+                           (gunzip_anat, segment, [('out_file', 'channel_files')]),
+                           (coregistration, normalize_functional, [('coregistered_files', 'apply_to_files')]),
+                           (segment, normalize_functional, [('forward_deformation_field', 'deformation_file')]),
+                           (normalize_functional, smooth, [('normalized_files', 'in_files')]),
+                           (realign, datasink_preproc, 
                             [('realignment_parameters', 'preprocess_spm.@parameters')]),
                            (smooth, datasink_preproc, [('smoothed_files', 'preprocess_spm.@smooth')]),
-                           (seg, datasink_preproc, [('native_class_images', 'preprocess_spm.@seg_maps_native'),
+                           (segment, datasink_preproc, [('native_class_images', 'preprocess_spm.@seg_maps_native'),
                                                     ('normalized_class_images', 'preprocess_spm.@seg_maps_norm')])])
     
     return preprocessing  
