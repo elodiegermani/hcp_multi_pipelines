@@ -176,7 +176,6 @@ This will perform the l1 analysis of subject 100206 with SPM, for contrast 'rh' 
 
 ## Reproducing group-level analyses
 
-### Within-group analysis 
 Within-group analysis can be used to obtain group statistic maps of different pipelines and to compare these maps at a higher level. 
 These can be done using the `src/run_group_analysis.py` script.
 How to use:
@@ -184,13 +183,3 @@ How to use:
 python3 group_map_comparison.py -e /srv/tempdd/egermani/hcp_pipelines/data/derived/subject_level/"$dataset_name"/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name" -s '["100206","100307","100410",...]' -c '["rh"]' -n 1000 -i 3
 ```
 This will perform the within-group analysis for 1000 groups formed from the list of subjects given with i=3 subjects in each group. 
-
-### Between-group analysis
-Between-group analysis can be used to obtain group statistic maps comparing groups of the same pipeline or of different pipelines. These can then be used to compute error rates between pipelines. 
-These can be done using the `src/run_between_groups_analysis.py`
-How to use:
-```bash
-python3 between_groups_analysis.py -g1 /srv/tempdd/egermani/hcp_pipelines/data/derived/"$dataset1"/original -g2 /srv/tempdd/egermani/hcp_pipelines/data/derived/"$dataset2"/original -S '["100206", ...]' -c '["rh"]' -r /srv/tempdd/egermani/hcp_pipelines/figures/ER_"$dataset1"_VS_"$dataset2" -i 1000
-```
-This will compute the between-group maps between dataset1 and dataset2, for 1000 groups. Group file must be stored in the directory used in the -r option. 
-For now, this script does not compute error rates.
