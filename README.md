@@ -1,6 +1,6 @@
 # HCP PIPELINES 
 
-This repository contains pipelines used to analyse HCP fMRI data with subject-level analytic pipelines using FSL and SPM and different parameters. It also contains scripts to perform group-level analysis: one sample t-test (within group) and two sample t-tests (between groups). 
+This repository contains pipelines used to analyse HCP fMRI data with subject-level analytic pipelines using FSL and SPM and different parameters. It also contains scripts to perform group-level analysis with one sample t-test (within group). 
 
 ## Table of contents
    * [How to cite?](#how-to-cite)
