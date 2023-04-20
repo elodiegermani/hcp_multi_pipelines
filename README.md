@@ -24,7 +24,7 @@ This directory is made to contain data that will be used by scripts/notebooks st
 
 ### `results`
 
-This directory contains notebooks and scripts that were used to analyze the results of the experiments. These notebooks were used to evaluate data compatibility between data obtained from different pipelines. 
+This directory contains notebooks and scripts that were used to analyze the results of the experiments. These notebooks were used to evaluate the quality of data obtained from different pipelines. 
 
 ### `figures`
 
