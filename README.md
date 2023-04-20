@@ -6,6 +6,7 @@ This repository contains pipelines used to analyse HCP fMRI data with subject-le
    * [How to cite?](#how-to-cite)
    * [Contents overview](#contents-overview)
    * [Installing environment](#installing-environment)
+   * [Download necessary data](#download-necessary-data)
    * [Reproducing subject-level analyses](#reproducing-subject-level-analyses)
    * [Reproducing group-level analyses](#reproducing-group-level-analyses)
 
@@ -164,6 +165,15 @@ from nipype.interfaces import spm
 matlab_cmd = '/opt/spm12-r7771/run_spm12.sh /opt/matlabmcr-2010a/v713/ script'
 spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd, use_mcr=True)
 ```
+
+## Download necessary data
+
+Raw fMRI data used in this project are obtained from the Human Connectome Project. All imaging data and most of the behavioral data are Open Access Data, which means that these are available to those who register an account at [ConnectomeDB](db.humanconnectome.org) and agree to the [Open Access Data Use Terms](https://www.humanconnectome.org/study/hcp-young-adult/document/wu-minn-hcp-consortium-open-access-data-use-terms). This includes agreement to comply with institutional rules and regulations. 
+
+After logging in, chose the S1200-Release, click on "Download Images" and select "Subjects with 3T MR Session Data". On the left, chose "Unprocessed" for the Processing Level and keep only "Structural" and "Task" modalities. Select the chosen packages and download.
+
+The original data must be stored in the `/data/original` repository.
+
 
 ## Reproducing subject-level analyses
 
