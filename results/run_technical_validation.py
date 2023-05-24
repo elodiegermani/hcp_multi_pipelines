@@ -9,7 +9,7 @@ simplefilter(action='ignore', category=RuntimeWarning)
 
 if __name__ == "__main__":
 	soft = 'FSL'
-	f = 8
+	f = 5
 	for p in [0,6,24]:
 		for h in [0,1]:
 
