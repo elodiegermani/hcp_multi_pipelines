@@ -20,6 +20,6 @@ if __name__ == "__main__":
 
 			df = technical_validation.run_technical_validation(maps)
 
-			df.to_csv(f'/srv/tempdd/egermani/hcp_pipelines/figures/validation_{soft}_{f}_{p}_{h}.csv')
+			df.to_csv(f'/srv/tempdd/egermani/hcp_pipelines/figures/validation_{soft}_{f}_{p}_{h}_inv.csv')
 
 

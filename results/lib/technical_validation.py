@@ -5,6 +5,8 @@ from nibabel.processing import resample_from_to
 from scipy import stats
 import pandas as pd 
 from os.path import join as opj
+import matplotlib.pyplot as plt
+from nilearn.plotting.cm import _cmap_d as nilearn_cmaps
 
 
 def mask_using_intersect(img1, img2):
@@ -51,39 +53,80 @@ def t_to_z(t_stat_img, N):
         
     return(z_stat_img)
 
-def get_percent_overlap(img1, img2):
+def get_percent_overlap(img1, img2, roi):
+    roi_data = roi.get_fdata() > 1e-6
+    data1 = np.nan_to_num(img1.get_fdata() * roi_data.astype('int'))
+    data2 = np.nan_to_num(img2.get_fdata() * roi_data.astype('int'))
+
+    img_rec = nib.Nifti1Image(data1, img1.affine)
+    img2_rec = nib.Nifti1Image(data2, img2.affine)
+
     # Vectorise input data
-    data1 = np.reshape(img1.get_fdata(), -1)
-    data2 = np.reshape(img2.get_fdata(), -1)
+    data1 = np.reshape(data1, -1)
+    data2 = np.reshape(data2, -1)
+    
+    data1 = np.nan_to_num(data1)
+    data2 = np.nan_to_num(data2)
 
     data_overlap = data1 * data2 
     data_overlap = data_overlap > 0
     
-    percent_overlap = sum(data_overlap)/sum(data1 > 0)
+    percent_overlap = np.count_nonzero(data_overlap)/np.count_nonzero(data1 > 0)
+    print(np.count_nonzero(data1), np.count_nonzero(data2))
     
     return percent_overlap
 
-def run_technical_validation(maps):
+def compute_unilateral_masks(mask):
+    mask_data=mask.get_fdata()
+    x_dim = mask_data.shape[0]
+    x_center = int(x_dim/2)
+
+    mask_data_left = mask_data.copy()
+    mask_data_left[0:x_center,:,:] = 0
+    mask_left = image.new_img_like(mask, mask_data_left, affine=mask.affine, copy_header=True)
+
+    mask_data_right = mask_data.copy()
+    mask_data_right[x_center:,:,:] = 0
+    mask_right = image.new_img_like(mask, mask_data_right, affine=mask.affine, copy_header=True)
+
+    return mask_right, mask_left
+
+def run_technical_validation(stat_maps):
     atlas = '/srv/tempdd/egermani/hcp_pipelines/results/atlas'
-    atlas_dict_unthresh = {'cue':'movement.nii.gz', 'lf':'left_foot.nii.gz', 
-                       'lh':'left_hand.nii.gz', 'rf':'right_foot.nii.gz', 'rh':'right_hand.nii.gz', 
-                       't':'tongue.nii.gz'}
+    atlas_dict_unthresh = {'cue':'tfMRI_MOTOR_CUE-AVG_zstat1.nii.gz', 'lf':'tfMRI_MOTOR_LF-AVG_zstat1.nii.gz', 
+                       'lh':'tfMRI_MOTOR_LH-AVG_zstat1.nii.gz', 'rf':'tfMRI_MOTOR_RF-AVG_zstat1.nii.gz', 'rh':'tfMRI_MOTOR_RH-AVG_zstat1.nii.gz', 
+                       't':'tfMRI_MOTOR_T-AVG_zstat1.nii.gz'}
                        
     df = pd.DataFrame(columns=['name','contrast','percent_overlap'])
-    m = len(maps)
+    m = len(stat_maps)
+    atlas_roi = datasets.fetch_atlas_juelich('prob-2mm')
+    lab =32
+    mask = image.index_img(atlas_roi.maps, lab)
+    mask_right, mask_left = compute_unilateral_masks(mask)
 
-    for i, f in enumerate(maps):
+    
+
+    for i, f in enumerate(stat_maps):
         print(f"Map {i} on {m}")
         contrast = f.split('/')[-1].split('_')[-1].split('.')[0]
+        print(contrast)
         f_name = f.split('/')[-1].split('.')[0]
-        
+
+        if contrast == 'lf' or contrast == 'lh':
+            roi_mask = mask_left 
+        elif contrast =='rf' or contrast == 'rh':
+            roi_mask = mask_right
+        else:
+            roi_mask = mask
+
         atlas_unthresh = nib.load(opj(atlas, atlas_dict_unthresh[contrast]))
         
         mask_unthresh_t = image.binarize_img(nib.load(f))
         
         unthresh_t = resample_from_to(nib.load(f), atlas_unthresh)
         res_mask_unthresh_t = resample_from_to(mask_unthresh_t, atlas_unthresh)
-        
+        roi = resample_from_to(roi_mask, atlas_unthresh)
+
         unthresh_t = mask_using_original(unthresh_t, res_mask_unthresh_t)
         
         mask_unthresh_t, mask_atlas_unthresh = mask_using_intersect(unthresh_t, atlas_unthresh)
@@ -95,9 +138,15 @@ def run_technical_validation(maps):
 
         thresh_z, threshold = glm.threshold_stats_img(unthresh_z, alpha=0.05, height_control='fdr',
                                                      two_sided=False)
+        '''
+        plotting.plot_glass_brain(unthresh_z, colorbar = True, annotate=False, plot_abs=False, threshold=None, cmap=nilearn_cmaps['cold_hot'],title='Our unthresholded map')
+        plotting.plot_glass_brain(thresh_z, title='Our thresholded map')
+        plotting.plot_glass_brain(mask_atlas_unthresh, colorbar = True, annotate=False, plot_abs=False, threshold=None, cmap=nilearn_cmaps['cold_hot'], title='NeuroQuery thresholded')
+        plotting.plot_glass_brain(atlas_thresh, title='NeuroQuery thresholded')
+        plt.show()
+        '''
         
-        
-        percent_overlap = get_percent_overlap(atlas_thresh, thresh_z)
+        percent_overlap = get_percent_overlap(atlas_thresh, thresh_z, roi)
         print(percent_overlap)
 
         df_file = pd.DataFrame([[f_name,contrast,percent_overlap]], columns=['name','contrast','percent_overlap'])
