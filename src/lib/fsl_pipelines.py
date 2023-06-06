@@ -283,12 +283,12 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 		'{subject_id}_3T_T1w_MPR1_fieldwarp.nii.gz')
 	cope_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
 		'results', 'cope{contrast}.nii.gz')
-	#stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
-#		'results', '*stat{contrast}.nii.gz')
+	stat_file = opj(output_dir, 'l1_analysis_fsl', '_fwhm_{fwhm}_hrf_{hrf}_nb_param_{nb_param}_subject_id_{subject_id}_task_{task}',
+		'results', '*stat{contrast}.nii.gz')
 
 	template = {'anat2target_transform': anat2target_transform_file, 
 					'func2anat_transform': func2anat_transform_file, 
-					'cope': cope_file}
+					'cope': cope_file, 'stat':stat_file}
 
 	# SelectFiles node - to select necessary files
 	selectfiles = Node(SelectFiles(template, base_directory=result_dir), name = 'selectfiles')
@@ -296,9 +296,13 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 	# DataSink Node - store the wanted results in the wanted repository
 	datasink = Node(DataSink(base_directory=result_dir, container=output_dir), name='datasink')
 
-	warpall = MapNode(ApplyWarp(interp='spline'),name='warpall', iterfield=['in_file'])
-	warpall.inputs.ref_file = Info.standard_image('MNI152_T1_2mm_brain.nii.gz')
-	warpall.inputs.mask_file = Info.standard_image('MNI152_T1_2mm_brain_mask.nii.gz')
+	warpall_cope = MapNode(ApplyWarp(interp='spline'),name='warpall_cope', iterfield=['in_file'])
+	warpall_cope.inputs.ref_file = Info.standard_image('MNI152_T1_2mm_brain.nii.gz')
+	warpall_cope.inputs.mask_file = Info.standard_image('MNI152_T1_2mm_brain_mask.nii.gz')
+
+	warpall_stat = MapNode(ApplyWarp(interp='spline'),name='warpall_stat', iterfield=['in_file'])
+	warpall_stat.inputs.ref_file = Info.standard_image('MNI152_T1_2mm_brain.nii.gz')
+	warpall_stat.inputs.mask_file = Info.standard_image('MNI152_T1_2mm_brain_mask.nii.gz')
 
 	# Create registration workflow and connect its nodes
 	registration = Workflow(base_dir = opj(result_dir, working_dir), name = "registration_fsl")
@@ -307,9 +311,13 @@ def get_registration(exp_dir, output_dir, working_dir, result_dir, subject_list,
 												   ('task', 'task'), ('fwhm', 'fwhm'), 
 												   ('contrast', 'contrast'), 
 												   ('nb_param', 'nb_param'), ('hrf', 'hrf')]),
-						(selectfiles, warpall, [('func2anat_transform', 'premat'), 
+						(selectfiles, warpall_cope, [('func2anat_transform', 'premat'), 
 							('anat2target_transform', 'field_file'), 
 							('cope', 'in_file')]), 
-						(warpall, datasink, [('out_file', 'registration_fsl.@reg_map')])])
+						(selectfiles, warpall_stat, [('func2anat_transform', 'premat'), 
+							('anat2target_transform', 'field_file'), 
+							('stat', 'in_file')]), 
+						(warpall_cope, datasink, [('out_file', 'registration_fsl.@reg_map')])
+						(warpall_stat, datasink, [('out_file', 'registration_fsl.@reg_stat_map')])])
 
 	return registration

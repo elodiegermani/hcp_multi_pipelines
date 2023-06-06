@@ -76,20 +76,23 @@ def get_percent_overlap(img1, img2, roi):
     
     return percent_overlap
 
-def compute_unilateral_masks(mask):
-    mask_data=mask.get_fdata()
+def compute_unilateral_masks(masks):
+    mask_data=masks[0].get_fdata() + masks[1].get_fdata()
+
+    mask = image.new_img_like(masks[0], mask_data, affine=masks[0].affine, copy_header=True)
+
     x_dim = mask_data.shape[0]
     x_center = int(x_dim/2)
 
     mask_data_left = mask_data.copy()
     mask_data_left[0:x_center,:,:] = 0
-    mask_left = image.new_img_like(mask, mask_data_left, affine=mask.affine, copy_header=True)
+    mask_left = image.new_img_like(masks[0], mask_data_left, affine=masks[0].affine, copy_header=True)
 
     mask_data_right = mask_data.copy()
     mask_data_right[x_center:,:,:] = 0
-    mask_right = image.new_img_like(mask, mask_data_right, affine=mask.affine, copy_header=True)
+    mask_right = image.new_img_like(masks[0], mask_data_right, affine=masks[0].affine, copy_header=True)
 
-    return mask_right, mask_left
+    return mask, mask_right, mask_left
 
 def run_technical_validation(stat_maps):
     atlas = '/srv/tempdd/egermani/hcp_pipelines/results/atlas'
@@ -100,9 +103,9 @@ def run_technical_validation(stat_maps):
     df = pd.DataFrame(columns=['name','contrast','percent_overlap'])
     m = len(stat_maps)
     atlas_roi = datasets.fetch_atlas_juelich('prob-2mm')
-    lab =32
-    mask = image.index_img(atlas_roi.maps, lab)
-    mask_right, mask_left = compute_unilateral_masks(mask)
+    lab =[31,32]
+    masks = [image.index_img(atlas_roi.maps, lab_i) for lab_i in lab]
+    mask, mask_right, mask_left = compute_unilateral_masks(masks)
 
     
 
