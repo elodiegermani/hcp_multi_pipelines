@@ -76,6 +76,25 @@ def get_percent_overlap(img1, img2, roi):
     
     return percent_overlap
 
+def get_percent_activated(img1, roi):
+    roi_data = roi.get_fdata() > 1e-6
+    data1 = np.nan_to_num(img1.get_fdata() * roi_data.astype('int'))
+
+    img_rec = nib.Nifti1Image(data1, img1.affine)
+    roi_rec = nib.Nifti1Image(roi_data, roi.affine)
+    plotting.plot_glass_brain(img_rec)
+    plotting.plot_glass_brain(roi_rec)
+    plt.show()
+
+    # Vectorise input data
+    data1 = np.reshape(data1, -1)
+    data1 = np.nan_to_num(data1)
+    
+    percent_activated = np.count_nonzero(data1)/np.count_nonzero(roi_data)
+    print(np.count_nonzero(data1), np.count_nonzero(roi_data))
+    
+    return percent_activated
+
 def compute_unilateral_masks(masks):
     mask_data=masks[0].get_fdata() + masks[1].get_fdata()
 
@@ -122,21 +141,17 @@ def run_technical_validation(stat_maps):
         else:
             roi_mask = mask
 
-        atlas_unthresh = nib.load(opj(atlas, atlas_dict_unthresh[contrast]))
+        #atlas_unthresh = nib.load(opj(atlas, atlas_dict_unthresh[contrast]))
         
         mask_unthresh_t = image.binarize_img(nib.load(f))
-        
-        unthresh_t = resample_from_to(nib.load(f), atlas_unthresh)
-        res_mask_unthresh_t = resample_from_to(mask_unthresh_t, atlas_unthresh)
-        roi = resample_from_to(roi_mask, atlas_unthresh)
+        unthresh_t = nib.load(f)
 
-        unthresh_t = mask_using_original(unthresh_t, res_mask_unthresh_t)
-        
-        mask_unthresh_t, mask_atlas_unthresh = mask_using_intersect(unthresh_t, atlas_unthresh)
-        
-        atlas_thresh, threshold = glm.threshold_stats_img(mask_atlas_unthresh, alpha=0.05, height_control='fdr', 
-                                                          two_sided=False)
-        unthresh_z = t_to_z(mask_unthresh_t, 50)
+        resampled_unthresh_t = resample_from_to(unthresh_t, roi_mask)
+        resampled_mask_unthresh_t = resample_from_to(mask_unthresh_t, roi_mask)
+
+        masked_unthresh_t = mask_using_original(resampled_unthresh_t, resampled_mask_unthresh_t)
+                
+        unthresh_z = t_to_z(masked_unthresh_t, 50)
 
 
         thresh_z, threshold = glm.threshold_stats_img(unthresh_z, alpha=0.05, height_control='fdr',
@@ -148,11 +163,11 @@ def run_technical_validation(stat_maps):
         plotting.plot_glass_brain(atlas_thresh, title='NeuroQuery thresholded')
         plt.show()
         '''
-        
-        percent_overlap = get_percent_overlap(atlas_thresh, thresh_z, roi)
-        print(percent_overlap)
+        percent_activated = get_percent_activated(thresh_z, roi_mask)
+        #percent_overlap = get_percent_overlap(atlas_thresh, thresh_z, roi)
+        #print(percent_overlap)
 
-        df_file = pd.DataFrame([[f_name,contrast,percent_overlap]], columns=['name','contrast','percent_overlap'])
+        df_file = pd.DataFrame([[f_name,contrast,percent_activated]], columns=['name','contrast','percent_activated'])
 
         df = pd.concat([df, df_file], ignore_index=True)
 

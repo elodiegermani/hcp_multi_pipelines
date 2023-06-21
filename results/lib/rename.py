@@ -83,6 +83,8 @@ def rename_group(in_dir, out_dir):
 
         p = fi.split('/')[-6].split('_')[7]
 
+        soft = fi.split('/')[-6].split('_')[2]
+
         s = fi.split('/')[-2].split('_')[-1]
 
         t = fi.split('/')[-1].split('_')[0]
@@ -91,7 +93,7 @@ def rename_group(in_dir, out_dir):
         typemap = typedict[t]
 
 
-        new_name = f'group-{s}_{contrast}_spm-{f}-{p}-{h}_{typemap}.nii.gz'
+        new_name = f'group-{s}_{contrast}_{soft}-{f}-{p}-{h}_{typemap}.nii.gz'
         print(new_name)
 
         shutil.copyfile(fi, f'{out_dir}/{new_name}')
