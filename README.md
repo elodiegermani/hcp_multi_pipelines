@@ -9,6 +9,8 @@ This repository contains pipelines used to analyse HCP fMRI data with subject-le
    * [Download necessary data](#download-necessary-data)
    * [Reproducing subject-level analyses](#reproducing-subject-level-analyses)
    * [Reproducing group-level analyses](#reproducing-group-level-analyses)
+   * [Reproducing technical validation](#reproducing-technical-validation)
+   * [Reproducing figures](#reproducing-figures)
 
 ## How to cite?
 
