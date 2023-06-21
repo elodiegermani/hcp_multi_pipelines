@@ -190,6 +190,27 @@ Within-group analysis can be used to obtain group statistic maps of different pi
 These can be done using the `src/run_group_analysis.py` script.
 How to use:
 ```bash
-python3 group_map_comparison.py -e /srv/tempdd/egermani/hcp_pipelines/data/derived/subject_level/"$dataset_name"/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name" -s '["100206","100307","100410",...]' -c '["rh"]' -n 1000 -i 3
+python3 run_group_analysis.py -e /srv/tempdd/egermani/hcp_pipelines/data/derived/subject_level/"$dataset_name"/original -r /srv/tempdd/egermani/hcp_pipelines/data/derived/group_analysis/"$dataset_name" -s '["100206","100307","100410",...]' -c '["rh"]' -n 1000 -i 3
 ```
 This will perform the within-group analysis for 1000 groups formed from the list of subjects given with i=3 subjects in each group. 
+
+## Reproducing technical validation
+
+Technical validation is performed to verify that statistic maps produced by the different pipelines are representative of the task of interest. 
+
+To do it, you first need to reorganize the data and rename it using `results/run_renaming.py`. 
+How to use: modify the paths to the input and output dirs and lauch:
+```bash
+python3 run_renaming.py
+```
+
+Technical validation can be done using the `results/run_technical_validation.py` script. 
+How to use: modify the parameters in the script and launch:
+```bash
+python3 run_technical_validation.py
+```
+This will output csv files that can be used to reproduce figures. 
+
+## Reproducing figures
+
+Figures of technical validation can be reproduce using the Notebook `results/technical_validation.ipynb`. Do not forget to modify the path to the data. 

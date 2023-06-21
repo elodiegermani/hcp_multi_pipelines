@@ -8,12 +8,12 @@ simplefilter(action='ignore', category=UserWarning)
 simplefilter(action='ignore', category=RuntimeWarning)
 
 if __name__ == "__main__":
-	soft = 'FSL'
+	soft = 'fsl'
 	f = 5
 	for p in [0,6,24]:
 		for h in [0,1]:
 
-			dataset = f'/srv/tempdd/egermani/pipeline_transition/data/original/stat_maps/group_level/group_50/DATASET_SOFT_{soft}_FWHM_{f}_MC_PARAM_{p}_HRF_{h}/original/*'
+			dataset = f'/srv/tempdd/egermani/hcp_many_pipelines/group-*_*_{soft}-{f}-{p}-{h}_tstat.nii'
 
 			maps = sorted(glob(dataset))
 			print('Number of maps:', len(maps))
